@@ -1,4 +1,4 @@
-// v0.0.1
+// v0.0.2
 import { useEffect, useState, useRef } from 'react';
 import './App.css';
 

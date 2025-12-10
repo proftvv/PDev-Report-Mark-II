@@ -1,4 +1,4 @@
-// v0.0.1
+// v0.0.2
 const mysql = require('mysql2/promise');
 const config = require('./config');
 

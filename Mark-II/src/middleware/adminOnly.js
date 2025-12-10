@@ -1,4 +1,4 @@
-// v0.0.1
+// v0.0.2
 const config = require('../config');
 
 function adminOnly(req, res, next) {
