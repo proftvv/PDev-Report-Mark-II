@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+# v0.0.1
 # GitHub Auto Push Script
 # Kullanım: .\push-to-github.ps1 "commit message"
 

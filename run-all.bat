@@ -1,4 +1,5 @@
 @echo off
+REM v0.0.1
 setlocal enabledelayedexpansion
 
 REM Proje kok dizini

@@ -1,3 +1,4 @@
+// v0.0.1
 const config = require('../config');
 
 function formatDocNumber(date = new Date(), sequence = 1) {
