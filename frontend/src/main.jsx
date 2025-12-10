@@ -1,4 +1,4 @@
-// v0.0.3
+// v0.0.4
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
