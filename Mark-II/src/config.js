@@ -1,4 +1,4 @@
-// v0.0.2
+// v0.0.3
 const path = require('path');
 require('dotenv').config();
 
@@ -10,7 +10,7 @@ const config = {
   port: Number(env('APP_PORT', 3000)),
   host: env('APP_HOST', '0.0.0.0'),
   sessionSecret: env('SESSION_SECRET', 'change-me'),
-  storageRoot: env('STORAGE_ROOT', 'Z:\\\\Report-Mark-II\\\\raporlar'),
+  storageRoot: env('STORAGE_ROOT', 'Z:\\\\MARK-II\\\\raporlar'),
   adminIps: env('ADMIN_IPS', '127.0.0.1,::1')
     .split(',')
     .map(ip => ip.trim())

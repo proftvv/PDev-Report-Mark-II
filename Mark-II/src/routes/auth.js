@@ -1,4 +1,4 @@
-// v0.0.2
+// v0.0.3
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const fs = require('fs').promises;

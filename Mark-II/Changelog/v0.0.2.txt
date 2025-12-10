@@ -1,0 +1,64 @@
+====================================
+VERSION: v0.0.2
+DATE: 10 Aralık 2025
+====================================
+
+BAŞLIK: Projeyi Z: Drive'a Taşıma, README Güncelleme, run-all.bat Yeniden Yapılandırma
+
+YAPILAN DEĞİŞİKLİKLER:
+
+1. README.md GÜNCELLEMESİ
+   - Report Dış Ticaret ve Lojistik şirketi tanımlanması eklendi
+   - Deneysel proje merkezi olarak repo açıklaması yapıldı
+   - Detaylı özellikler ve kullanım rehberi yazıldı
+   - Teknoloji stack tablosu eklendi
+   - API endpoints tabelosu eklendi
+   - GitHub ayarları ve versiyon sistemi dokumentasyonu eklendi
+
+2. RUN-ALL.BAT YENİDEN YAPILANDI
+   - Mark-II klasörüne taşındı
+   - Root'ta yönlendirici script oluşturuldu
+   - Dosya yolları relative path olarak güncellendi
+   - Otomatik git push özelliği korundu
+
+3. VERSİYON NUMARALANDIRMASI
+   - Tüm backend dosyaları (src/) v0.0.1 versiyonu aldı
+   - Tüm frontend dosyaları (frontend/src/) v0.0.1 versiyonu aldı
+   - CSS dosyaları v0.0.1 versiyonu aldı
+   - Script dosyaları (.bat, .ps1) v0.0.1 versiyonu aldı
+   - Versiyon formatı: // v0.0.1 (JavaScript/TypeScript)
+   - Versiyon formatı: /* v0.0.1 */ (CSS)
+   - Versiyon formatı: REM v0.0.1 (Batch)
+   - Versiyon formatı: # v0.0.1 (PowerShell)
+
+4. GITHUB AYARLARI
+   - Mark-2 branch'i main branch'e dönüştürüldü
+   - Contributions tracking için main branch kullanılıyor
+   - Otomatik push özelliği main branch'e yapılandırıldı
+   - 5 commit'le GitHub'a başarılı yükleme yapıldı
+
+DOSYA DEĞİŞİKLİKLERİ:
+   - Yeni: README.md (güncellendi)
+   - Yeni: Mark-II/run-all.bat (oluşturuldu)
+   - Güncellendi: Tüm src/ dosyaları (v0.0.1 versiyonu)
+   - Güncellendi: Tüm frontend/src/ dosyaları (v0.0.1 versiyonu)
+   - Güncellendi: push-to-github.ps1
+
+GİT COMMIT MESAJLARI:
+   - "Add version numbering (v0.0.1) to all source files"
+   - "Switch to main branch for GitHub contributions tracking"
+   - "Configure automatic GitHub push on run-all.bat - v0.1.0"
+   - "Update README for Report Dış Ticaret, reorganize run-all.bat to Mark-II, version bump to v0.0.2"
+
+GITHUB REPOSITORY:
+   https://github.com/proftvv/ReportDisTicaret
+   Branch: main
+   Commits: 6
+
+SONUÇ:
+   ✅ Proje yapısı yeniden organize edildi
+   ✅ GitHub contributions tracking aktif hale getirildi
+   ✅ Tüm dosyalar versiyonlandırıldı
+   ✅ Otomatik push sistemi kuruldu
+   ✅ Şirket için profesyonel README yazıldı
+   ✅ 19 dosya değiştirildi

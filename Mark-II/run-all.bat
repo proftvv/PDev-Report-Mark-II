@@ -1,5 +1,5 @@
 @echo off
-REM v0.0.2
+REM v0.0.3
 setlocal enabledelayedexpansion
 
 REM Mevcut dizin (Mark-II klas\u00f6r\u00fc i\u00e7inde)
