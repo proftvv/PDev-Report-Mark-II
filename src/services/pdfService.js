@@ -1,4 +1,3 @@
-// v0.0.5
 const fs = require('fs');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const { buildGeneratedPath } = require('../storage');

@@ -1,0 +1,76 @@
+====================================
+VERSION: v0.0.6
+DATE: 10 Aralık 2025
+====================================
+
+BAŞLIK: Merkezi Versiyon Takibi Sistemi (VERSION Dosyası)
+
+YAPILAN DEĞİŞİKLİKLER:
+
+1. MERKEZI VERSİYON TAKIBI SİSTEMİ OLUŞTURULDU
+   - Yeni dosya: VERSION (proje kök dizini)
+   - İçerik:
+     * PROJECT VERSION: 0.0.6
+     * Tüm dosyaların sürüm takibi (status ile)
+     * VERSION HISTORY (v0.0.1 - v0.0.6)
+     * VERSIONING RULES ve STATUS LEGEND
+
+2. DOSYA YORUM VERSİYONLARI KALDIRILAN
+   - Tüm dosyalardan "// v0.0.5", "# v0.0.5" vb. kaldırıldı
+   - Artık versiyon sadece VERSION dosyasında tutulacak
+   - Dosyalar:
+     * src/app.js
+     * src/config.js
+     * src/db.js
+     * src/storage.js
+     * src/middleware/authRequired.js
+     * src/middleware/adminOnly.js
+     * src/routes/auth.js
+     * src/routes/templates.js
+     * src/routes/reports.js
+     * src/services/pdfService.js
+     * src/utils/docNumber.js
+     * frontend/src/App.jsx
+     * run-all.bat
+     * push-to-github.ps1
+
+3. VERSİYON SİSTEMİ KURALLAR
+   - Proje Sürümü: 0.0.x, 0.1.x, 1.0.0+ formatında
+   - Dosya Sürümü: Sadece değişen dosyalar VERSION dosyasında not edilir
+   - Geriye Dönüş: Dosya comment'inde version isteğe bağlı
+
+4. PROJE ANALYSIS DOSYASI GÜNCELLEMESİ
+   - VERSION sistemi dökümentasyonu eklendi
+   - Çalışma akışı güncellendi
+   - Merkezi takibin avantajları açıklandı
+
+DOSYA DEĞİŞİKLİKLERİ:
+   - Yeni: VERSION (merkezi versiyon dosyası)
+   - Yeni: Changelog/v0.0.6.txt
+   - Güncellendi: PROJECT_ANALYSIS.md
+   - Değiştirildi: 14 dosya (versiyon comment'leri kaldırıldı)
+
+AVANTAJLAR:
+   ✅ Merkezi versiyon takibi (VERSION dosyasında)
+   ✅ Dosyaları tekrar tekrar açmaya gerek yok
+   ✅ Daha temiz dosya içeriği (versiyon comment'leri yok)
+   ✅ Tüm sürüm tarihi bir yerde
+   ✅ Status tracking (Original, Fixed, Modified, New, Config)
+   ✅ Ölçeklenebilir sistem
+
+GİT COMMIT MESAJLARI:
+   - "Implement centralized VERSION file - remove version comments from all files, update versioning system to v0.0.6"
+
+SONRAKI ADIMLAR:
+   ✅ Her promptta:
+      1. Değişiklik yap
+      2. VERSION dosyasını güncelle
+      3. Changelog dosyası oluştur
+      4. Git commit & push
+
+SONUÇ:
+   ✅ Versiyon sistemi merkezi yönetim modeline geçti
+   ✅ Tüm dosyalardan versiyon comment'leri temizlendi
+   ✅ VERSION dosyası tüm sürüm takibini içeriyor
+   ✅ Sistem daha temiz ve ölçeklenebilir
+

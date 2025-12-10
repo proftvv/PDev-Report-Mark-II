@@ -1,0 +1,136 @@
+================================
+MARK-II PROJECT VERSION TRACKING
+================================
+
+PROJECT VERSION: 0.0.6
+LAST UPDATE: 10 Aralık 2025
+
+================================
+FILE VERSION TRACKING
+================================
+
+BACKEND FILES (src/)
+===================
+src/app.js                          v0.0.6  [Modified]
+src/config.js                       v0.0.6  [Modified]
+src/db.js                           v0.0.6  [Modified]
+src/storage.js                      v0.0.6  [Modified]
+
+MIDDLEWARE (src/middleware/)
+===========================
+src/middleware/authRequired.js      v0.0.6  [Modified]
+src/middleware/adminOnly.js         v0.0.6  [Modified]
+
+ROUTES (src/routes/)
+====================
+src/routes/auth.js                  v0.0.6  [Modified]
+src/routes/templates.js             v0.0.6  [Modified]
+src/routes/reports.js               v0.0.6  [Modified]
+
+SERVICES (src/services/)
+========================
+src/services/pdfService.js          v0.0.6  [Modified]
+
+UTILS (src/utils/)
+==================
+src/utils/docNumber.js              v0.0.6  [Modified]
+
+FRONTEND FILES (frontend/src/)
+==============================
+frontend/src/App.jsx                v0.0.6  [Modified]
+frontend/src/main.jsx               v0.0.1  [Original]
+frontend/src/index.css              v0.0.1  [Original]
+frontend/src/App.css                v0.0.1  [Original]
+
+SCRIPT FILES
+============
+run-all.bat                         v0.0.6  [Modified]
+push-to-github.ps1                  v0.0.6  [Modified]
+
+CONFIGURATION FILES
+===================
+package.json                        v1.0.0  [Config]
+frontend/package.json               v1.0.0  [Config]
+env.example                         v0.0.3  [Config]
+vite.config.js                      v0.0.1  [Config]
+eslint.config.js                    v0.0.1  [Config]
+
+SQL FILES (sql/)
+================
+sql/schema.sql                      v0.0.1  [Original]
+sql/create_app_user.sql             v0.0.1  [Original]
+sql/fix_user.sql                    v0.0.1  [Original]
+sql/fix_root.sql                    v0.0.1  [Original]
+
+DOCUMENTATION
+==============
+README.md                           v0.0.2  [Original]
+GITHUB_SETUP.md                     v0.0.1  [Original]
+
+================================
+VERSION HISTORY
+================================
+
+v0.0.6 (10 Aralık 2025)
+  - Implemented centralized VERSION file for version tracking
+  - Removed version comments from all source files
+  - Updated all files: app.js, config.js, db.js, storage.js
+  - Updated middleware: authRequired.js, adminOnly.js
+  - Updated routes: auth.js, templates.js, reports.js
+  - Updated services: pdfService.js
+  - Updated utils: docNumber.js
+  - Updated frontend: App.jsx
+  - Updated scripts: run-all.bat, push-to-github.ps1
+  - Proje sürümü merkezi olarak VERSION dosyasında takip edilecek
+
+v0.0.5 (10 Aralık 2025)
+  - Fixed run-all.bat (removed Mark-II directory reference)
+  - Updated npm run start:all command
+  - Updated affected files: app.js, config.js, db.js, storage.js
+  - Updated middleware: authRequired.js, adminOnly.js
+  - Updated routes: auth.js, templates.js, reports.js
+  - Updated services: pdfService.js
+  - Updated utils: docNumber.js
+  - Updated frontend: App.jsx
+  - Updated scripts: run-all.bat, push-to-github.ps1
+
+v0.0.4 (10 Aralık 2025)
+  - Flattened project structure (moved Mark-II contents to root)
+  - All files set to v0.0.4
+
+v0.0.3 (10 Aralık 2025)
+  - Updated storage paths (Z:\MARK-II)
+  - Added Changelog system
+
+v0.0.2 (10 Aralık 2025)
+  - Versioning system introduced
+  - README updated
+  - run-all.bat reorganized
+
+v0.0.1
+  - Initial project setup
+
+================================
+VERSIONING RULES
+================================
+
+PROJECT VERSION:
+  - Patch (0.0.x): Bug fixes, small improvements
+  - Minor (0.1.x): New features
+  - Major (1.0.0+): Breaking changes
+
+FILE VERSION:
+  - Only updated when file is modified
+  - Format: // v0.0.x (JavaScript), # v0.0.x (PowerShell), etc.
+  - Optional: Files can inherit PROJECT VERSION if not individually tracked
+
+================================
+STATUS LEGEND
+================================
+
+[Original]   - Original file, not modified since v0.0.1
+[Fixed]      - Bug fixes applied
+[Modified]   - Updated/improved
+[Config]     - Configuration file (version tracked separately)
+[New]        - New file in this version
+

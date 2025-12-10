@@ -1,4 +1,3 @@
-// v0.0.5
 const path = require('path');
 require('dotenv').config();
 

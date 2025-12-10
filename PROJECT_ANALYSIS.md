@@ -171,55 +171,55 @@ cd frontend && npm run dev   # Frontend (Vite, --host ile LAN erişimi)
 
 ---
 
-## 📈 Versiyon Sistemi
+## 📈 Versiyon Sistemi (Güncellenmiş)
 
-### Sürüm Bilgisi
-- **Mevcut Sürüm**: v0.0.4
-- **Sürüm Formatı**: v0.x.y (Patch, Minor, Major)
-- **Versiyonlama Kuralı**:
-  - Yeni **özellik** → 0.1.x (v0.0.4 → v0.1.0)
-  - Küçük **fix/iyileştirme** → 0.0.x (v0.0.4 → v0.0.5)
-  
+### Merkezi Versiyon Takibi
+- **Lokasyon**: `VERSION` dosyası (proje kök dizini)
+- **İçerik**: 
+  - Proje sürümü (PROJECT VERSION: 0.0.5)
+  - Tüm dosyaların sürüm takibi (STATUS ile)
+  - Sürüm tarihi
+
+### Sürüm Formatı
+```
+PROJECT VERSION: 0.0.5
+- Patch (0.0.x): Bug fixes, small improvements
+- Minor (0.1.x): New features
+- Major (1.0.0+): Breaking changes
+```
+
+### Dosya Sürümü Kuralı
+- **Sadece değişen dosyalara** // v0.0.X ekle
+- VERSION dosyasında merkezî takip yap
+- Dosya yorumunda version kalması isteğe bağlı
+
 ### Changelog Dosyaları
 - **Lokasyon**: `Changelog/` klasörü
 - **Format**: `vX.Y.Z.txt` (plaintext dosyalar)
-- **İçerik Örneği**:
-  - VERSION ve DATE başlığı
-  - BAŞLIK (ana değişiklik)
-  - YAPILAN DEĞİŞİKLİKLER (detaylı liste)
-  - DOSYA DEĞİŞİKLİKLERİ
-  - GİT COMMIT MESAJLARI
-  - SONUÇ (özetle)
 
 ### Mevcut Sürüm Tarihi
 - **v0.0.2**: README güncelleme, run-all.bat, versiyonlama sistemi
 - **v0.0.3**: Dosya yolu güncelleme (Z:\MARK-II), Changelog sistemi
 - **v0.0.4**: Proje yapısını düzleştirme (Flatten)
-
-### Versiyon Tanımlamaları
-```
-// v0.0.4  (JavaScript/TypeScript dosyaları)
-/* v0.0.4 */ (CSS dosyaları)
-REM v0.0.4 (Batch dosyaları)
-# v0.0.4 (PowerShell dosyaları)
-```
+- **v0.0.5**: run-all.bat hatasını düzeltme (Mark-II referansı kaldırıldı)
 
 ---
 
-## 📝 Çalışma Akışı
+## 📝 Çalışma Akışı (Güncellenmiş)
 
 Her prompt için:
 1. ✅ Değişiklikleri yap (kod, dosya, vb.)
-2. ✅ Sürüm numarasını arttır (tüm dosyalara)
-3. ✅ Changelog/vX.Y.Z.txt dosyası oluştur
-4. ✅ Git commit & push yap (otomatik)
+2. ✅ VERSION dosyasını güncelle (değişen dosyaları not et)
+3. ✅ Sadece değişen dosyalara `// v0.0.X` ekle
+4. ✅ Changelog/vX.Y.Z.txt dosyası oluştur
+5. ✅ Git commit & push yap
 
 ---
 
 ## 🎯 Promptlara Hazır
-Changelog sistemi anladım! Şimdi her promptta:
-- Yeni özellik → v0.1.x
-- Fix/iyileştirme → v0.0.x  
+Merkezi VERSION sistemi aktif! Şimdi her promptta:
+- Proje sürümü VERSION dosyasında
+- Sadece değişen dosyaları version arttır
 - Changelog dosyası oluştur
-- Sürüm numarasını arttır
+- Git push
 

@@ -1,4 +1,3 @@
-// v0.0.5
 import { useEffect, useState, useRef } from 'react';
 import './App.css';
 
