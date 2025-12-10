@@ -244,7 +244,7 @@ function App() {
             {darkMode ? '☀️' : '🌙'}
           </button>
           <span className="muted">API: {API_BASE}</span>
-          <span className="muted">v0.0.9</span>
+          <span className="muted">v0.1.0</span>
           {user ? (
             <>
               <span className="muted">{user.username}</span>
