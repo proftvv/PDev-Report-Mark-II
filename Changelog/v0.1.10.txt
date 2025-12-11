@@ -1,5 +1,5 @@
 [CHANGELOG]
-Version: v0.0.10
+Version: v0.1.10
 Date: 11 Aralık 2025
 
 ## 🚀 Improvements
