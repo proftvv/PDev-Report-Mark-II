@@ -1,31 +1,19 @@
 const express = require('express');
-const fs = require('fs').promises;
+const fs = require('fs').promises; // Dosya tasima icin gerekli
 const path = require('path');
 const multer = require('multer');
 const { buildTemplatePath } = require('../storage');
 const authRequired = require('../middleware/authRequired');
+const { pool } = require('../db');
 
 const upload = multer({ dest: 'temp_uploads/' });
 const router = express.Router();
-const TEMPLATES_FILE = path.join(__dirname, '../../templates.json');
 
-async function getTemplates() {
-  try {
-    const data = await fs.readFile(TEMPLATES_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-async function saveTemplates(templates) {
-  await fs.writeFile(TEMPLATES_FILE, JSON.stringify(templates, null, 2), 'utf8');
-}
-
-// Sablon ekleme - sadece proftvv kullanıcısı
+// Sablon ekleme - sadece proftvv kullanıcısı (veya admin)
 router.post('/', authRequired, upload.single('file'), async (req, res) => {
-  if (req.session.user.username !== 'proftvv') {
-    return res.status(403).json({ error: 'Sadece ana hesap şablon ekleyebilir' });
+  // TODO: Rol kontrolunu DB uzerinden yapmak daha iyi olur ama su anlik username check yeterli
+  if (req.session.user.username !== 'proftvv' && req.session.user.username !== 'admin') {
+    return res.status(403).json({ error: 'Sadece yetkili hesap şablon ekleyebilir' });
   }
 
   const { name, description, field_map_json } = req.body;
@@ -33,48 +21,57 @@ router.post('/', authRequired, upload.single('file'), async (req, res) => {
     return res.status(400).json({ error: 'Isim ve PDF gerekli' });
   }
 
-  const templates = await getTemplates();
   const safeName = name.replace(/\s+/g, '_');
   const filename = `${Date.now()}_${safeName}.pdf`;
   const dest = buildTemplatePath(filename);
-  
+
+  // Dosyayi tasi
   await fs.rename(req.file.path, dest);
 
   const fieldMap = field_map_json ? JSON.parse(field_map_json) : [];
-  const newId = templates.length > 0 ? Math.max(...templates.map(t => t.id)) + 1 : 1;
 
-  // Frontend'de doğru URL'i oluştursun diye sadece filename kaydet
-  templates.push({
-    id: newId,
-    name,
-    description: description || '',
-    file_path: filename,
-    field_map_json: fieldMap,
-    created_by: req.session.user.id,
-    created_at: new Date().toISOString()
-  });
+  try {
+    const [result] = await pool.execute(
+      `INSERT INTO templates (name, description, file_path, field_map_json, created_by)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        name,
+        description || '',
+        filename,
+        JSON.stringify(fieldMap),
+        req.session.user.id
+      ]
+    );
 
-  await saveTemplates(templates);
-  return res.json({ id: newId, name, file_path: dest });
+    return res.json({ id: result.insertId, name, file_path: dest });
+  } catch (err) {
+    console.error('Template insert error:', err);
+    return res.status(500).json({ error: 'Veritabanina kaydedilemedi' });
+  }
 });
 
 router.get('/', authRequired, async (_req, res) => {
-  const templates = await getTemplates();
-  return res.json(templates.map(t => ({
-    id: t.id,
-    name: t.name,
-    description: t.description,
-    file_path: t.file_path,
-    created_at: t.created_at
-  })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+  try {
+    const [rows] = await pool.query('SELECT * FROM templates ORDER BY created_at DESC');
+    // Field map JSON olarak geliyor mysql2 ile (eger JSON column ise object doner mi? mysql2 doner)
+    // Ama degilse parsing gerekebilir.
+    return res.json(rows);
+  } catch (err) {
+    console.error('Templates list error:', err);
+    return res.status(500).json({ error: 'Sablonlar alinamadi' });
+  }
 });
 
 router.get('/:id', authRequired, async (req, res) => {
-  const templates = await getTemplates();
-  const template = templates.find(t => t.id === parseInt(req.params.id));
-  if (!template) return res.status(404).json({ error: 'Sablon bulunamadi' });
-  return res.json(template);
+  try {
+    const [rows] = await pool.execute('SELECT * FROM templates WHERE id = ?', [req.params.id]);
+    const template = rows[0];
+    if (!template) return res.status(404).json({ error: 'Sablon bulunamadi' });
+    return res.json(template);
+  } catch (err) {
+    console.error('Template get error:', err);
+    return res.status(500).json({ error: 'Sunucu hatasi' });
+  }
 });
 
 module.exports = router;
-

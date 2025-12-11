@@ -1,0 +1,14 @@
+[CHANGELOG]
+Version: v0.0.10
+Date: 11 Aralık 2025
+
+## 🚀 Improvements
+- **Database Backend**: Complete migration from JSON files to MySQL Database.
+  - `auth.js`: Now authenticates against `users` table.
+  - `templates.js`: Stores and retrieves templates from `templates` table.
+  - `reports.js`: Stores reports and doc counters in `reports` and `doc_counters` tables.
+- **Environment**: Fixed `.env` loading and database credentials.
+
+## 🛠 Fixes
+- **Authentication**: Resolved MariaDB authentication plugin issues.
+- **Scripts**: Updated `init-db.js` to ensure localhost connection works with local MySQL setup.

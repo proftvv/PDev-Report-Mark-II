@@ -2,7 +2,7 @@
 MARK-II PROJECT VERSION TRACKING
 ================================
 
-PROJECT VERSION: 0.0.9
+PROJECT VERSION: 0.0.10
 LAST UPDATE: 11 Aralık 2025
 
 ================================
@@ -23,9 +23,9 @@ src/middleware/adminOnly.js         v0.0.6  [Modified]
 
 ROUTES (src/routes/)
 ====================
-src/routes/auth.js                  v0.0.6  [Modified]
-src/routes/templates.js             v0.0.6  [Modified]
-src/routes/reports.js               v0.0.6  [Modified]
+src/routes/auth.js                  v0.0.10 [Modified]
+src/routes/templates.js             v0.0.10 [Modified]
+src/routes/reports.js               v0.0.10 [Modified]
 
 SERVICES (src/services/)
 ========================
@@ -76,6 +76,11 @@ GITHUB_SETUP.md                     v0.0.1  [Original]
 ================================
 VERSION HISTORY
 ================================
+
+v0.0.10 (11 Aralik 2025)
+  - Full migration to MySQL Database
+  - Updated auth, templates, reports routes
+  - Fixed .env issues
 
 v0.0.9 (11 Aralik 2025)
   - Added Testing Infrastructure (Jest, Supertest)
