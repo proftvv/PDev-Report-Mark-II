@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import './App.css';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
+const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -63,9 +63,14 @@ function App() {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Hata oluştu');
+      // E-GEN-001: Genuine API Error
+      throw new Error(err.error || `[E-GEN-001] Sunucu hatası (${res.status})`);
     }
     return res.json();
+  }
+
+  function getError(code, message) {
+    return `[${code}] ${message}`;
   }
 
   async function checkSession() {
@@ -79,19 +84,34 @@ function App() {
   }
 
   function renderFieldDots(fields) {
-    return (fields || []).map((field, idx) => (
-      <div
-        key={`${field.key}-${idx}`}
-        className="field-dot"
-        style={{
-          left: `${(field.x / 595) * 100}%`,
-          bottom: `${(field.y / 842) * 100}%`
-        }}
-        title={`${field.key} (x:${field.x.toFixed(0)}, y:${field.y.toFixed(0)})`}
-      >
-        {field.key}
-      </div>
-    ));
+    return (fields || []).map((field, idx) => {
+      // field.x/y are in PDF coordinates (bottom-left origin)
+      // We need to convert to % for CSS (top-left origin)
+      // CSS Left = (field.x / 595) * 100
+      // CSS Bottom = (field.y / 842) * 100 
+      // If it has w/h, render as box. Else render as dot (legacy support).
+
+      const style = {
+        left: `${(field.x / 595) * 100}%`,
+        bottom: `${(field.y / 842) * 100}%`
+      };
+
+      if (field.w && field.h) {
+        style.width = `${(field.w / 595) * 100}%`;
+        style.height = `${(field.h / 842) * 100}%`;
+      }
+
+      return (
+        <div
+          key={`${field.key}-${idx}`}
+          className={field.w ? "field-box" : "field-dot"}
+          style={style}
+          title={`${field.key} (x:${field.x.toFixed(0)}, y:${field.y.toFixed(0)})`}
+        >
+          <span className="field-label">{field.key}</span>
+        </div>
+      );
+    });
   }
 
   async function handleLogin(e) {
@@ -106,7 +126,7 @@ function App() {
       setStatus('Giriş başarılı');
       await Promise.all([loadTemplates(), loadReports()]);
     } catch (err) {
-      setStatus(err.message);
+      setStatus(`[L-001] ${err.message}`);
     }
   }
 
@@ -193,28 +213,61 @@ function App() {
     setIsDragging(false);
 
     const rect = e.currentTarget.getBoundingClientRect();
-    const endX = e.clientX - rect.left;
-    const endY = e.clientY - rect.top;
+    const currentX = e.clientX - rect.left;
+    const currentY = e.clientY - rect.top;
 
-    // Calculate box (for visual or data if needed)
-    // We stick to a point for now but we could use the box center or top-left
-    // For now, let's use the mouse UP position as the target point, 
-    // OR the center of the selection. 
-    // To match user's "screenshot" mental model, let's use the selection to determine position.
-    // If it's a tiny click, endX~startX.
+    // Calculate box dimensions relative to PDF 595x842 coordinate system
+    // Using Math.min to ensure x/y are top-left
+    const rawX = Math.min(dragStart.x, currentX);
+    const rawY = Math.min(dragStart.y, currentY);
+    const rawW = Math.abs(currentX - dragStart.x);
+    const rawH = Math.abs(currentY - dragStart.y);
 
-    // Let's use the center of the drag box as the field center
-    const x = (dragStart.x + endX) / 2;
-    const y = rect.height - ((dragStart.y + endY) / 2); // PDF coordinates are bottom-up
+    // Convert to PDF coordinates (PDF origin is usually bottom-left, but for simple overlay we often use top-left if the viewer matches. 
+    // However, pdf-lib usually uses bottom-left origin. 
+    // Let's assume standard PDF coordinates: x=left, y=bottom.
+    // The previous logic used `rect.height - (e.clientY - rect.top)` which implies bottom-up Y.
+    // If we want to draw a box, we need (x, y, w, h). 
+    // Let's store normalized values and handle rendering/pdf-generation accordingly.
+
+    // PDF Y is from bottom. So Top-Left of screen box is:
+    // Screen Y (from top) = rawY
+    // PDF Y (from bottom) = rect.height - rawY
+    // But since it's a box, we usually define it by bottom-left corner or top-left. 
+    // Let's stick to the previous point logic: x, y, size.
+    // BUT user complained about visual mismatch. 
+    // Let's save the BOX definition: x (left), y (bottom), w, h.
+
+    // PDF Coordinate (Bottom-Left of the box):
+    // x = rawX
+    // y = rect.height - (rawY + rawH) 
+
+    const scaleX = 595 / rect.width;
+    const scaleY = 842 / rect.height;
+
+    const x = rawX * scaleX;
+    // PDF Y (bottom-left)
+    const y = (rect.height - (rawY + rawH)) * scaleY;
+    const w = rawW * scaleX;
+    const h = rawH * scaleY;
+
+    // Don't allow tiny boxes
+    if (w < 5 || h < 5) {
+      setDragStart(null);
+      setDragCurrent(null);
+      return;
+    }
 
     const key = prompt('Alan adı (key):');
     if (key) {
       const newField = {
         key,
         page: 0,
-        x: x * (595 / rect.width),
-        y: y * (842 / rect.height),
-        size: 12
+        x, // Bottom-left X
+        y, // Bottom-left Y
+        w, // Width
+        h, // Height
+        type: 'box'
       };
       setSelectedFields([...selectedFields, newField]);
       setTemplateForm(prev => ({
@@ -307,8 +360,10 @@ function App() {
           >
             {darkMode ? '☀️' : '🌙'}
           </button>
-          <span className="muted">API: {API_BASE}</span>
-          <span className="muted">v0.1.0</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: '1.2' }}>
+            <span className="muted">v0.1.0</span>
+            <span className="muted" style={{ fontSize: '10px', color: '#2563eb' }}>Developed by Proftvv</span>
+          </div>
           {user ? (
             <>
               <span className="muted">{user.username}</span>

@@ -43,7 +43,7 @@ router.post('/', authRequired, upload.single('file'), async (req, res) => {
       ]
     );
 
-    return res.json({ id: result.insertId, name, file_path: dest });
+    return res.json({ id: result.insertId, name, file_path: filename });
   } catch (err) {
     console.error('Template insert error:', err);
     return res.status(500).json({ error: 'Veritabanina kaydedilemedi' });

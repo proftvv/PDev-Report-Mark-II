@@ -2,7 +2,7 @@
 MARK-II PROJECT VERSION TRACKING
 ================================
 
-PROJECT VERSION: 0.1.11
+PROJECT VERSION: 0.1.12
 LAST UPDATE: 11 Aralık 2025
 
 ================================
@@ -24,7 +24,7 @@ src/middleware/adminOnly.js         v0.0.6  [Modified]
 ROUTES (src/routes/)
 ====================
 src/routes/auth.js                  v0.0.10 [Modified]
-src/routes/templates.js             v0.0.10 [Modified]
+src/routes/templates.js             v0.1.12 [Modified]
 src/routes/reports.js               v0.0.10 [Modified]
 
 SERVICES (src/services/)
@@ -38,10 +38,10 @@ src/utils/docNumber.js              v0.0.6  [Modified]
 
 FRONTEND FILES (frontend/src/)
 ==============================
-frontend/src/App.jsx                v0.1.11 [Modified]
+frontend/src/App.jsx                v0.1.12 [Modified]
 frontend/src/main.jsx               v0.0.1  [Original]
 frontend/src/index.css              v0.0.1  [Original]
-frontend/src/App.css                v0.1.11 [Modified]
+frontend/src/App.css                v0.1.12 [Modified]
 
 SCRIPT FILES
 ============
@@ -59,7 +59,7 @@ CONFIGURATION FILES
 package.json                        v0.0.9  [Modified]
 frontend/package.json               v1.0.0  [Config]
 env.example                         v0.0.3  [Config]
-vite.config.js                      v0.0.1  [Config]
+vite.config.js                      v0.1.12 [Modified]
 eslint.config.js                    v0.0.1  [Config]
 
 SQL FILES (sql/)
@@ -79,7 +79,14 @@ PROJECT_ANALYSIS.md                 v0.1.11 [Modified]
 VERSION HISTORY
 ================================
 
+v0.1.12 (11 Aralik 2025)
+  - Implemented Vite Proxy (Fixed Failed to Fetch & PDF Preview)
+  - Fixed field selection visualization
+  - Added Error Codes & Footer
+  - Allow PDF object embedding via CSP
+
 v0.1.11 (11 Aralik 2025)
+
   - Added drag-and-select field definition
   - Removed Customer ID input
   - Added logging service
