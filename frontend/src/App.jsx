@@ -359,264 +359,287 @@ function App() {
   return (
     <div className={`page ${darkMode ? 'dark' : ''}`}>
       <header className="topbar">
-        {/* ... header content ... */}
+        <div>
+          <h1>Report Mark II</h1>
+          <p className="muted">PDF rapor doldurma ve versiyonlama</p>
+        </div>
+        <div className="top-actions">
+          <button
+            className="theme-toggle"
+            onClick={() => setDarkMode(!darkMode)}
+            title={darkMode ? 'Açık tema' : 'Karanlık tema'}
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: '1.2' }}>
+            <span className="muted">v1.2.0</span>
+            <span className="muted" style={{ fontSize: '10px', color: '#2563eb' }}>Developed by Proftvv</span>
+          </div>
+          {user ? (
+            <>
+              <span className="muted">{user.username}</span>
+              <button className="secondary" onClick={handleLogout}>Çıkış</button>
+            </>
+          ) : null}
+        </div>
+      </header>
 
 
-        {!user && (
+      {!user && (
+        <section className="card">
+          <h2>Giriş</h2>
+          <form className="form-grid" onSubmit={handleLogin}>
+            <label>
+              Kullanıcı adı
+              <input
+                value={loginForm.username}
+                onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+                required
+              />
+            </label>
+            <label>
+              Şifre
+              <input
+                type="password"
+                value={loginForm.password}
+                onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                required
+              />
+            </label>
+            <button type="submit">Giriş yap</button>
+          </form>
+        </section>
+      )}
+
+      {user && (
+        <>
           <section className="card">
-            <h2>Giriş</h2>
-            <form className="form-grid" onSubmit={handleLogin}>
-              <label>
-                Kullanıcı adı
-                <input
-                  value={loginForm.username}
-                  onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
-                  required
-                />
-              </label>
-              <label>
-                Şifre
-                <input
-                  type="password"
-                  value={loginForm.password}
-                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                  required
-                />
-              </label>
-              <button type="submit">Giriş yap</button>
-            </form>
-          </section>
-        )}
-
-        {user && (
-          <>
-            <section className="card">
-              <div className="section-head">
-                <h2>Şablonlar</h2>
-                <button onClick={loadTemplates} className="secondary">Yenile</button>
-              </div>
-              <div className="list">
-                {templates.length === 0 && <div className="muted">Şablon yok</div>}
-                {templates.map((t) => (
-                  <div key={t.id} className="list-item">
-                    <div>
-                      <strong>{t.name}</strong>
-                      <div className="muted">{t.description}</div>
-                    </div>
-                    <div className="muted">#{t.id}</div>
+            <div className="section-head">
+              <h2>Şablonlar</h2>
+              <button onClick={loadTemplates} className="secondary">Yenile</button>
+            </div>
+            <div className="list">
+              {templates.length === 0 && <div className="muted">Şablon yok</div>}
+              {templates.map((t) => (
+                <div key={t.id} className="list-item">
+                  <div>
+                    <strong>{t.name}</strong>
+                    <div className="muted">{t.description}</div>
                   </div>
-                ))}
-              </div>
-              {isAdmin && (
-                <details className="accordion">
-                  <summary>Şablon ekle (sadece proftvv)</summary>
-                  <form className="form-grid" onSubmit={handleTemplateUpload}>
-                    <label>
-                      Ad
-                      <input
-                        value={templateForm.name}
-                        onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
-                        required
-                      />
-                    </label>
-                    <label>
-                      Açıklama
-                      <input
-                        value={templateForm.description}
-                        onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
-                      />
-                    </label>
-                    <label>
-                      PDF Şablon
-                      <input
-                        type="file"
-                        accept="application/pdf"
-                        onChange={(e) => setTemplateFile(e.target.files?.[0] || null)}
-                        required
-                      />
-                    </label>
-                    {templatePreview && (
-                      <div className="pdf-preview-container">
-                        <h3>PDF önizleme - Tıklayarak alan ekleyin</h3>
-                        <div className="pdf-frame">
-                          <object
-                            data={`${templatePreview}#toolbar=0`}
-                            type="application/pdf"
-                            className="pdf-embed"
-                          >
-                            <p>PDF görüntülenemedi. <a href={templatePreview} target="_blank" rel="noreferrer">Yeni sekmede aç</a></p>
-                          </object>
-                          <div className="pdf-dots">
-                            {renderFieldDots(selectedFields)}
-                          </div>
-                          {isAdmin && (
-                            <>
-                              <div
-                                className="pdf-click-overlay"
-                                onMouseDown={handleMouseDown}
-                                onMouseMove={handleMouseMove}
-                                onMouseUp={handleMouseUp}
-                                onMouseLeave={() => {
-                                  setMousePos({ x: -1, y: -1 });
-                                  setIsDragging(false);
-                                  setDragStart(null);
-                                }}
-                                title="Tıklayıp sürükleyerek alan seçin"
-                              />
-                              {/* Guide Lines (Crosshair) */}
-                              {mousePos.x > 0 && mousePos.y > 0 && !isDragging && (
-                                <>
-                                  <div className="guide-line-x" style={{ top: mousePos.y }}></div>
-                                  <div className="guide-line-y" style={{ left: mousePos.x }}></div>
-                                </>
-                              )}
-                              {/* Selection Drag Box */}
-                              {isDragging && dragStart && dragCurrent && (
-                                <div
-                                  className="selection-box"
-                                  style={{
-                                    left: Math.min(dragStart.x, dragCurrent.x),
-                                    top: Math.min(dragStart.y, dragCurrent.y),
-                                    width: Math.abs(dragCurrent.x - dragStart.x),
-                                    height: Math.abs(dragCurrent.y - dragStart.y)
-                                  }}
-                                ></div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                        <div className="field-list">
-                          <h4>Seçilen Alanlar:</h4>
-                          {selectedFields.map((field, idx) => (
-                            <div key={idx} className="field-item">
-                              <strong>{field.key}</strong> - x: {field.x.toFixed(0)}, y: {field.y.toFixed(0)}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const newFields = selectedFields.filter((_, i) => i !== idx);
-                                  setSelectedFields(newFields);
-                                  setTemplateForm(prev => ({
-                                    ...prev,
-                                    fieldMapJson: JSON.stringify(newFields, null, 2)
-                                  }));
-                                }}
-                              >
-                                Sil
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    <label>
-                      field_map_json (otomatik doldurulur)
-                      <textarea
-                        rows={6}
-                        value={templateForm.fieldMapJson}
-                        onChange={(e) => setTemplateForm({ ...templateForm, fieldMapJson: e.target.value })}
-                      />
-                    </label>
-                    <button type="submit">Şablonu kaydet</button>
-                  </form>
-                </details>
-              )}
-            </section>
-
-            <section className="card">
-              <div className="section-head">
-                <h2>Rapor oluştur</h2>
-                <button onClick={loadReports} className="secondary">Listeyi yenile</button>
-              </div>
-              <form className="form-grid" onSubmit={handleReportCreate}>
-                <label>
-                  Şablon
-                  <select
-                    value={reportForm.templateId}
-                    onChange={(e) => {
-                      const templateId = e.target.value;
-                      setReportForm({ ...reportForm, templateId, fieldData: {} });
-                      if (templateId) {
-                        loadTemplatePreview(parseInt(templateId));
-                      } else {
-                        setSelectedTemplate(null);
-                        setReportPreview(null);
-                      }
-                    }}
-                    required
-                  >
-                    <option value="">Seçin</option>
-                    {templates.map((t) => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </select>
-                </label>
-
-                {selectedTemplate && reportPreview && (
-                  <div className="pdf-preview-container">
-                    <h3>PDF önizleme - Alanları doldurun</h3>
-                    <div className="pdf-frame">
-                      <object
-                        data={`${reportPreview}#toolbar=0`}
-                        type="application/pdf"
-                        className="pdf-embed"
-                      >
-                        <p>PDF görüntülenemedi. <a href={reportPreview} target="_blank" rel="noreferrer">Yeni sekmede aç</a></p>
-                      </object>
-                      <div className="pdf-dots">
-                        {renderFieldDots(selectedTemplate.field_map_json || [])}
-                      </div>
-                    </div>
-                    <div className="field-form">
-                      <h4>Alanları Doldur:</h4>
-                      {/* Ensure field_map_json is an array and map it */}
-                      {(Array.isArray(selectedTemplate.field_map_json) ? selectedTemplate.field_map_json : []).map((field) => (
-                        <label key={field.key}>
-                          {field.key}
-                          <input
-                            type="text"
-                            value={reportForm.fieldData[field.key] || ''}
-                            onChange={(e) => updateFieldData(field.key, e.target.value)}
-                            placeholder={`${field.key} değerini girin`}
-                          />
-                        </label>
-                      ))}
-                      {(!selectedTemplate.field_map_json || selectedTemplate.field_map_json.length === 0) && (
-                        <div className="muted">Bu şablonda tanımlı alan yok.</div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                <button type="submit">Rapor üret</button>
-              </form>
-
-              <div className="list">
-                {reports.length === 0 && <div className="muted">Rapor yok</div>}
-                {reports.map((r) => (
-                  <div key={r.id} className="list-item">
-                    <div>
-                      <strong>{r.doc_number}</strong>
-                      <div className="muted">Template #{r.template_id} | Customer {r.customer_id || '-'}</div>
-                    </div>
-                    <div className="actions">
-                      <a className="secondary" href={`${API_BASE}/files/generated/${r.doc_number}.pdf`} target="_blank" rel="noreferrer">PDF</a>
-                      {isAdmin && (
-                        <button
-                          className="danger"
-                          style={{ marginLeft: '8px', background: '#ef4444', border: '1px solid #b91c1c' }}
-                          onClick={() => handleDeleteReport(r.id)}
+                  <div className="muted">#{t.id}</div>
+                </div>
+              ))}
+            </div>
+            {isAdmin && (
+              <details className="accordion">
+                <summary>Şablon ekle (sadece proftvv)</summary>
+                <form className="form-grid" onSubmit={handleTemplateUpload}>
+                  <label>
+                    Ad
+                    <input
+                      value={templateForm.name}
+                      onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Açıklama
+                    <input
+                      value={templateForm.description}
+                      onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
+                    />
+                  </label>
+                  <label>
+                    PDF Şablon
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => setTemplateFile(e.target.files?.[0] || null)}
+                      required
+                    />
+                  </label>
+                  {templatePreview && (
+                    <div className="pdf-preview-container">
+                      <h3>PDF önizleme - Tıklayarak alan ekleyin</h3>
+                      <div className="pdf-frame">
+                        <object
+                          data={`${templatePreview}#toolbar=0`}
+                          type="application/pdf"
+                          className="pdf-embed"
                         >
-                          Sil
-                        </button>
-                      )}
+                          <p>PDF görüntülenemedi. <a href={templatePreview} target="_blank" rel="noreferrer">Yeni sekmede aç</a></p>
+                        </object>
+                        <div className="pdf-dots">
+                          {renderFieldDots(selectedFields)}
+                        </div>
+                        {isAdmin && (
+                          <>
+                            <div
+                              className="pdf-click-overlay"
+                              onMouseDown={handleMouseDown}
+                              onMouseMove={handleMouseMove}
+                              onMouseUp={handleMouseUp}
+                              onMouseLeave={() => {
+                                setMousePos({ x: -1, y: -1 });
+                                setIsDragging(false);
+                                setDragStart(null);
+                              }}
+                              title="Tıklayıp sürükleyerek alan seçin"
+                            />
+                            {/* Guide Lines (Crosshair) */}
+                            {mousePos.x > 0 && mousePos.y > 0 && !isDragging && (
+                              <>
+                                <div className="guide-line-x" style={{ top: mousePos.y }}></div>
+                                <div className="guide-line-y" style={{ left: mousePos.x }}></div>
+                              </>
+                            )}
+                            {/* Selection Drag Box */}
+                            {isDragging && dragStart && dragCurrent && (
+                              <div
+                                className="selection-box"
+                                style={{
+                                  left: Math.min(dragStart.x, dragCurrent.x),
+                                  top: Math.min(dragStart.y, dragCurrent.y),
+                                  width: Math.abs(dragCurrent.x - dragStart.x),
+                                  height: Math.abs(dragCurrent.y - dragStart.y)
+                                }}
+                              ></div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      <div className="field-list">
+                        <h4>Seçilen Alanlar:</h4>
+                        {selectedFields.map((field, idx) => (
+                          <div key={idx} className="field-item">
+                            <strong>{field.key}</strong> - x: {field.x.toFixed(0)}, y: {field.y.toFixed(0)}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newFields = selectedFields.filter((_, i) => i !== idx);
+                                setSelectedFields(newFields);
+                                setTemplateForm(prev => ({
+                                  ...prev,
+                                  fieldMapJson: JSON.stringify(newFields, null, 2)
+                                }));
+                              }}
+                            >
+                              Sil
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <label>
+                    field_map_json (otomatik doldurulur)
+                    <textarea
+                      rows={6}
+                      value={templateForm.fieldMapJson}
+                      onChange={(e) => setTemplateForm({ ...templateForm, fieldMapJson: e.target.value })}
+                    />
+                  </label>
+                  <button type="submit">Şablonu kaydet</button>
+                </form>
+              </details>
+            )}
+          </section>
+
+          <section className="card">
+            <div className="section-head">
+              <h2>Rapor oluştur</h2>
+              <button onClick={loadReports} className="secondary">Listeyi yenile</button>
+            </div>
+            <form className="form-grid" onSubmit={handleReportCreate}>
+              <label>
+                Şablon
+                <select
+                  value={reportForm.templateId}
+                  onChange={(e) => {
+                    const templateId = e.target.value;
+                    setReportForm({ ...reportForm, templateId, fieldData: {} });
+                    if (templateId) {
+                      loadTemplatePreview(parseInt(templateId));
+                    } else {
+                      setSelectedTemplate(null);
+                      setReportPreview(null);
+                    }
+                  }}
+                  required
+                >
+                  <option value="">Seçin</option>
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </label>
+
+              {selectedTemplate && reportPreview && (
+                <div className="pdf-preview-container">
+                  <h3>PDF önizleme - Alanları doldurun</h3>
+                  <div className="pdf-frame">
+                    <object
+                      data={`${reportPreview}#toolbar=0`}
+                      type="application/pdf"
+                      className="pdf-embed"
+                    >
+                      <p>PDF görüntülenemedi. <a href={reportPreview} target="_blank" rel="noreferrer">Yeni sekmede aç</a></p>
+                    </object>
+                    <div className="pdf-dots">
+                      {renderFieldDots(selectedTemplate.field_map_json || [])}
                     </div>
                   </div>
-                ))}
-              </div>
-            </section>
-          </>
-        )}
+                  <div className="field-form">
+                    <h4>Alanları Doldur:</h4>
+                    {/* Ensure field_map_json is an array and map it */}
+                    {(Array.isArray(selectedTemplate.field_map_json) ? selectedTemplate.field_map_json : []).map((field) => (
+                      <label key={field.key}>
+                        {field.key}
+                        <input
+                          type="text"
+                          value={reportForm.fieldData[field.key] || ''}
+                          onChange={(e) => updateFieldData(field.key, e.target.value)}
+                          placeholder={`${field.key} değerini girin`}
+                        />
+                      </label>
+                    ))}
+                    {(!selectedTemplate.field_map_json || selectedTemplate.field_map_json.length === 0) && (
+                      <div className="muted">Bu şablonda tanımlı alan yok.</div>
+                    )}
+                  </div>
+                </div>
+              )}
+              <button type="submit">Rapor üret</button>
+            </form>
 
-        {status && <div className="status">{status}</div>}
+            <div className="list">
+              {reports.length === 0 && <div className="muted">Rapor yok</div>}
+              {reports.map((r) => (
+                <div key={r.id} className="list-item">
+                  <div>
+                    <strong>{r.doc_number}</strong>
+                    <div className="muted">Template #{r.template_id} | Customer {r.customer_id || '-'}</div>
+                  </div>
+                  <div className="actions">
+                    <a className="secondary" href={`${API_BASE}/files/generated/${r.doc_number}.pdf`} target="_blank" rel="noreferrer">PDF</a>
+                    {isAdmin && (
+                      <button
+                        className="danger"
+                        style={{ marginLeft: '8px', background: '#ef4444', border: '1px solid #b91c1c' }}
+                        onClick={() => handleDeleteReport(r.id)}
+                      >
+                        Sil
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+
+      {status && <div className="status">{status}</div>}
     </div>
   );
 }

@@ -29,7 +29,7 @@ router.post('/login', async (req, res) => {
     return res.json({ user: req.session.user });
   } catch (err) {
     console.error('Login hatasi:', err);
-    return res.status(500).json({ error: 'Sunucu hatasi' });
+    return res.status(500).json({ error: `Sunucu hatasi: ${err.message}` });
   }
 });
 

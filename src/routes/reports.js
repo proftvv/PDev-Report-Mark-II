@@ -90,33 +90,35 @@ router.get('/:id', authRequired, async (req, res) => {
     console.error(err);
     return res.status(500).json({ error: 'Sunucu hatasi' });
   }
-  router.delete('/:id', authRequired, async (req, res) => {
-    try {
-      // Only proftvv or admin can delete
-      if (req.session.user.username !== 'proftvv' && req.session.user.username !== 'admin') {
-        return res.status(403).json({ error: 'Yetkisiz islem' });
-      }
+});
 
-      // Get report to find file path
-      const [rows] = await pool.execute('SELECT * FROM reports WHERE id = ?', [req.params.id]);
-      if (rows.length === 0) return res.status(404).json({ error: 'Rapor bulunamadi' });
-
-      // Delete from DB
-      await pool.execute('DELETE FROM reports WHERE id = ?', [req.params.id]);
-
-      // Note: We are keeping the file to avoid data loss, or we could delete it using fs.unlink
-      // Let's delete it for cleanliness, but wrap in try-catch in case file is missing
-      /*
-      try {
-         await fs.unlink(rows[0].file_path);
-      } catch { }
-      */
-
-      return res.json({ success: true });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Silme hatasi' });
+router.delete('/:id', authRequired, async (req, res) => {
+  try {
+    // Only proftvv or admin can delete
+    if (req.session.user.username !== 'proftvv' && req.session.user.username !== 'admin') {
+      return res.status(403).json({ error: 'Yetkisiz islem' });
     }
-  });
 
-  module.exports = router;
+    // Get report to find file path
+    const [rows] = await pool.execute('SELECT * FROM reports WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Rapor bulunamadi' });
+
+    // Delete from DB
+    await pool.execute('DELETE FROM reports WHERE id = ?', [req.params.id]);
+
+    // Note: We are keeping the file to avoid data loss, or we could delete it using fs.unlink
+    // Let's delete it for cleanliness, but wrap in try-catch in case file is missing
+    /*
+    try {
+       await fs.unlink(rows[0].file_path);
+    } catch { }
+    */
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Silme hatasi' });
+  }
+});
+
+module.exports = router;

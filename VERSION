@@ -2,7 +2,7 @@
 MARK-II PROJECT VERSION TRACKING
 ================================
 
-PROJECT VERSION: 0.1.12
+PROJECT VERSION: 1.2.0
 LAST UPDATE: 11 Aralık 2025
 
 ================================
@@ -78,6 +78,12 @@ PROJECT_ANALYSIS.md                 v0.1.11 [Modified]
 ================================
 VERSION HISTORY
 ================================
+
+v1.2.0 (11 Aralik 2025)
+  - Major UI overhaul & bug fixes completed
+  - Added Delete Report functionality
+  - Fixed PDF Preview & Field Selection
+  - Added Easy Setup Script & Ngrok Guide
 
 v0.1.12 (11 Aralik 2025)
   - Implemented Vite Proxy (Fixed Failed to Fetch & PDF Preview)
