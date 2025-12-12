@@ -1211,13 +1211,29 @@ function App() {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <strong>{field.key}</strong>
-                                    <button 
-                                      type="button" 
-                                      className="danger-sm" 
-                                      onClick={() => setEditingFields(editingFields.filter((_, i) => i !== idx))}
-                                    >
-                                      Sil
-                                    </button>
+                                    <div style={{ display: 'flex', gap: '6px' }}>
+                                      <button 
+                                        type="button" 
+                                        className="secondary"
+                                        onClick={() => {
+                                          const newKey = prompt('Yeni alan adı:', field.key);
+                                          if (newKey && newKey.trim() !== field.key) {
+                                            const updatedFields = [...editingFields];
+                                            updatedFields[idx] = { ...field, key: newKey.trim() };
+                                            setEditingFields(updatedFields);
+                                          }
+                                        }}
+                                      >
+                                        ✏️
+                                      </button>
+                                      <button 
+                                        type="button" 
+                                        className="danger-sm" 
+                                        onClick={() => setEditingFields(editingFields.filter((_, i) => i !== idx))}
+                                      >
+                                        🗑️
+                                      </button>
+                                    </div>
                                   </div>
                                   <div className="muted" style={{ fontSize: '12px' }}>
                                     Konum: ({field.x.toFixed(0)}, {field.y.toFixed(0)})

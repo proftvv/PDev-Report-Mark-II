@@ -78,19 +78,22 @@ function isLocalIp(req) {
  * @param {Object} details - Ek detaylar
  */
 function logAdminAction(req, action, details = {}) {
-  const { logger } = require('../services/logger');
+  const logger = require('../services/logger');
   const user = req.session?.user;
   const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
   
-  logger.info({
-    type: 'ADMIN_ACTION',
-    user: user?.username || 'unknown',
-    userId: user?.id || null,
-    action,
-    ip,
-    timestamp: new Date().toISOString(),
-    ...details
-  });
+  logger.info(
+    `Admin action: ${action}`,
+    {
+      type: 'ADMIN_ACTION',
+      user: user?.username || 'unknown',
+      userId: user?.id || null,
+      action,
+      ip,
+      timestamp: new Date().toISOString(),
+      ...details
+    }
+  );
 }
 
 module.exports = {
