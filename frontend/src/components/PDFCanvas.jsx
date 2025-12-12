@@ -7,7 +7,7 @@ import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 
-function PDFCanvas({ file, children, onLoadSuccess }) {
+function PDFCanvas({ file, children, onLoadSuccess, onLoadError }) {
     const [numPages, setNumPages] = useState(null);
     const [pageWidth, setPageWidth] = useState(null);
     const containerRef = useRef(null);
