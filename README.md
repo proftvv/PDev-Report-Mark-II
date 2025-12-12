@@ -1,189 +1,98 @@
-# 📊 Report Mark-II
-## Report Dış Ticaret ve Lojistik - Deneysel Proje Merkezi
+# 📊 Report Mark II
 
-**ReportDisTicaret** ana repositorisi. Bu repo, Report Dış Ticaret ve Lojistik şirketinin çeşitli deneysel ve üretim projelerinin merkezi konumundadır.
+**Report Dış Ticaret ve Lojistik - Dijital Raporlama Platformu**
+
+Report Mark II, şirket içi PDF raporlama süreçlerini dijitalleştiren, LAN üzerinden erişilebilir modern bir web uygulamasıdır. Eski masaüstü yazılımlarının yerini alarak, herhangi bir cihazdan (PC, Tablet) kolayca rapor oluşturulmasını sağlar.
 
 ---
 
-## 📁 Proje Yapısı
+## 🎯 Proje Amacı ve Özellikler
+
+Bu sistemin temel amacı, standart PDF şablonları üzerine dinamik veri girişi yaparak hatasız ve standartlara uygun belgeler üretmektir.
+
+### Temel Özellikler
+*   **📄 Dinamik PDF Şablonları:** Yöneticiler sisteme ham PDF yükleyip, üzerine veri alanlarını sürükle-bırak yöntemiyle tanımlayabilir.
+*   **✍️ Kolay Veri Girişi:** Kullanıcılar, tanımlanmış alanları bir form üzerinden doldurarak PDF'i saniyeler içinde oluşturur.
+*   **🗂️ Versiyon Takibi:** Oluşturulan her rapor benzersiz bir belge numarası (Örn: `P-20251212-005`) alır.
+*   **🔒 Yetkilendirme:**
+    *   **Admin (`proftvv`):** Şablon ekleme, düzenleme, silme ve tüm raporları yönetme.
+    *   **Kullanıcı:** Sadece rapor oluşturma ve kendi raporlarını görme.
+*   **🎨 Modern Arayüz:** Kullanıcı dostu, Karanlık/Aydınlık mod destekli React arayüzü.
+
+---
+
+## 🏗️ Teknoloji Yığını (Tech Stack)
+
+| Alan | Teknoloji | Açıklama |
+|------|-----------|----------|
+| **Frontend** | **React + Vite** | Hızlı ve modern kullanıcı arayüzü. |
+| **Backend** | **Node.js (Express)** | REST API ve iş mantığı. |
+| **Database** | **MySQL / MariaDB** | Kullanıcı, şablon ve rapor verileri. |
+| **PDF Engine** | **pdf-lib** | PDF okuma, işleme ve oluşturma. |
+| **Security** | **Bcrypt + Helmet** | Şifreleme ve güvenlik katmanları. |
+
+---
+
+## 🚀 Kurulum ve Çalıştırma
+
+### Otomatik Kurulum (Windows 11)
+Proje klasöründe bulunan `easy-setup-win11.bat` dosyasına çift tıklayın. Bu script:
+1.  Gerekli kütüphaneleri (`npm install`) yükler.
+2.  Veritabanı bağlantılarını kontrol eder.
+3.  Uygulamayı başlatır.
+
+### Manuel Kurulum
+
+1.  **Bağımlılıkları Yükle:**
+    ```bash
+    npm install
+    cd frontend && npm install
+    ```
+2.  **Uygulamayı Başlat:**
+    Ana dizinde terminali açın:
+    ```bash
+    npm run start:all
+    ```
+    *   Backend: `http://localhost:3000`
+    *   Frontend: `http://localhost:3000` (Vite Proxy üzerinden) veya `http://localhost:5173`
+
+---
+
+## 📈 Sürüm Sistemi (Versioning)
+
+Proje sürüm numaralandırması **`x.y.z`** formatındadır:
+*   **x (1)**: Stable (Kararlı) Sürüm.
+*   **y (1)**: Major Updates (Büyük Özellik Eklemeleri).
+*   **z (15)**: Bug Fixes (Hata Düzeltmeleri ve Küçük İyileştirmeler).
+
+**Mevcut Sürüm:** `v1.1.15`
+
+---
+
+## 📂 Klasör Yapısı
 
 ```
-ReportDisTicaret/
-├── Mark-II/              # 📌 ANA PROJE - PDF Rapor Sistemi
-│   ├── src/              # Backend kaynağı (Node.js + Express)
-│   ├── frontend/         # Frontend (React + Vite)
-│   ├── sql/              # Database şeması
-│   ├── run-all.bat       # 🚀 Hızlı başlatma
-│   └── package.json
-├── README.md             # Bu dosya
-└── .git/                 # Git repository
-```
-
----
-
-## 🎯 Mark-II Nedir?
-
-**Mark-II**, PDF rapor doldurma ve versiyonlama sistemidir. LAN üzerinde erişilebilen web arayüzüyle:
-
-✅ **PDF Şablonları Yönetimi** - Özel PDF şablonları ekleyin  
-✅ **Otomatik Doldurma** - Alan seçimi ve veri girişi  
-✅ **Versiyon Kontrolü** - Raporların geçmiş sürümlerini takip edin  
-✅ **Belge Numaralandırması** - Otomatik, tarih bazında numara sistemi  
-✅ **Dark Mode** - Gece çalışması için uygun tema  
-
-### 💻 Teknoloji Stack
-
-| Katman | Teknoloji |
-|--------|-----------|
-| **Backend** | Node.js 18+ / Express |
-| **Frontend** | React 18+ / Vite |
-| **Database** | MySQL 5.7+ / MariaDB |
-| **PDF** | pdf-lib (Oku/Yaz) |
-| **Auth** | BCrypt + Express-Session |
-
----
-
-## 🚀 Hızlı Başlangıç
-
-### 1️⃣ Bağımlılıkları Yükle
-
-```bash
-cd Mark-II
-npm install
-cd frontend && npm install && cd ..
-```
-
-### 2️⃣ Ortam Değişkenlerini Ayarla
-
-`Mark-II/env` dosyasını düzenle:
-
-```env
-APP_PORT=3000
-APP_HOST=0.0.0.0
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=2503
-DB_NAME=report_mark2
-STORAGE_ROOT=Z:\Report-Mark-II\raporlar
-SESSION_SECRET=change-me
-DOC_PREFIX=P
-```
-
-### 3️⃣ Başlat! 🎊
-
-#### Seçenek 1: Hızlı Başlangıç (Tavsiye Edilen)
-```bash
-cd Mark-II
-.\run-all.bat
-```
-
-#### Seçenek 2: Manuel Başlangıç
-```bash
-cd Mark-II
-npm run start:all
-```
-
----
-
-## 📊 Özellikler
-
-### 🔐 Kullanıcı Sistemi
-- Admin (proftvv): Şablon ekleme ve yönetimi
-- Standart Kullanıcılar: Rapor oluşturma
-
-### 📋 API Endpoints
-
-| Method | Endpoint | İçin |
-|--------|----------|------|
-| `POST` | `/auth/login` | Giriş |
-| `POST` | `/auth/logout` | Çıkış |
-| `GET` | `/templates` | Şablonları listele |
-| `POST` | `/templates` | Yeni şablon ekle (Admin) |
-| `POST` | `/reports` | Rapor oluştur |
-| `GET` | `/reports` | Raporları listele |
-
-### 🎨 UI/UX
-- Responsive tasarım (Mobile + Desktop)
-- Dark/Light tema geçişi
-- Real-time form validation
-- PDF önizlemesi
-
----
-
-## 📈 Versiyon Sistemi
-
-Her dosyanın başında versiyon numarası bulunur (`// v0.0.1`).
-
-**Versiyon İlerleme:**
-- `v0.0.1` - İlk sürüm
-- `v0.0.2` - Bug fix'ler
-- `v0.1.0` - Yeni özellik
-- `v1.0.0` - Stable sürüm
-
-Güncellemeler otomatik GitHub'a push'lanır.
-
----
-
-## 🔄 GitHub Ayarları
-
-- **Repository**: https://github.com/proftvv/ReportDisTicaret
-- **Branch**: `main` (default)
-- **Otomatik Push**: `run-all.bat` kapatılırken trigger'lanır
-- **Contributions**: Aktif takip ediliyor ✅
-
----
-
-## 📚 Projeyi Geliştirme
-
-### Şablon Ekleme
-1. Admin hesabı (proftvv) ile giriş yap
-2. "Şablon ekle" butonuna tıkla
-3. PDF dosyasını seç
-4. Alanları tıklayarak belirle
-5. Kaydet
-
-### Rapor Oluşturma
-1. Standart hesapla giriş yap
-2. Şablon seç
-3. Alanları doldur
-4. "Rapor Üret" tıkla
-5. PDF'i indir
-
----
-
-## 🛠️ Database Kurulumu
-
-```bash
-cd Mark-II/sql
-# Aşağıdaki SQL dosyalarını MySQL'e çalıştır:
-# - schema.sql (Tablo yapısı)
-# - create_app_user.sql (Uygulama kullanıcısı)
+Mark-II/
+├── src/              # Backend (API) Kodları
+│   ├── routes/       # API Rotaları (Auth, Reports, Templates)
+│   ├── services/     # Yardımcı Servisler (PDF, Logger)
+│   └── app.js        # Ana Sunucu Dosyası
+├── frontend/         # React Frontend Kodları
+│   ├── src/
+│   │   ├── App.jsx   # Ana Uygulama Mantığı
+│   │   └── App.css   # Stiller
+├── logs/             # Sistem Logları
+├── raporlar/         # Oluşturulan PDF'ler ve Şablonlar (Storage)
+└── sql/              # Veritabanı Kurulum Scriptleri
 ```
 
 ---
 
-## 📝 Notlar
+## 🤝 İletişim
 
-- **Port Çakışması**: Port 3000 meşgulse, `.env`'de `APP_PORT` değiştir
-- **CORS**: LAN içinde tüm IP'lere açık
-- **Session**: Browser kapatılırken silinir
-- **PDF İşleme**: Sunucuda yapılır (client-side değil)
+**Geliştirici:** Proftvv (Agentic AI & Özcan Yılmazçelebi)
+**Repo:** [GitHub - ReportDisTicaret](https://github.com/proftvv/ReportDisTicaret)
 
 ---
+*Developed by Report Dış Ticaret ve Lojistik*
 
-## 🤝 İletişim & Destek
-
-- **GitHub**: https://github.com/proftvv/ReportDisTicaret
-- **E-posta**: ozcanyilmazcelebi2016@gmail.com
-- **Şirket**: Report Dış Ticaret ve Lojistik
-
----
-
-## 📄 Lisans
-
-Tüm hakları saklıdır © 2025 Report Dış Ticaret ve Lojistik
-
----
-
-**Son Güncelleme**: 10 Aralık 2025  
-**Versiyonu**: v0.1.0

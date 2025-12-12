@@ -372,7 +372,7 @@ function App() {
             {darkMode ? '☀️' : '🌙'}
           </button>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: '1.2' }}>
-            <span className="muted">v1.2.1</span>
+            <span className="muted">v1.1.15</span>
             <span className="muted" style={{ fontSize: '10px', color: '#2563eb' }}>Developed by Proftvv</span>
           </div>
           {user ? (

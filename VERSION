@@ -2,7 +2,7 @@
 MARK-II PROJECT VERSION TRACKING
 ================================
 
-PROJECT VERSION: 1.2.1
+PROJECT VERSION: 1.1.15
 LAST UPDATE: 11 Aralık 2025
 
 ================================
@@ -79,12 +79,12 @@ PROJECT_ANALYSIS.md                 v0.1.11 [Modified]
 VERSION HISTORY
 ================================
 
-v1.2.1 (12 Aralik 2025)
-  - Fixed PDF overlay scroll behavior (blue boxes now scroll with PDF)
-  - Synced displayed version with project version
-  - Internal UI fixes
+v1.1.15 (12 Aralik 2025)
+  - Adjusted versioning scheme: v1.1.x (Stable.Major.Fix)
+  - Forced PDF native scrollbar hidden to ensure correct overlay scrolling
+  - Updated documentation
 
-v1.2.0 (11 Aralik 2025)
+v1.2.1 (12 Aralik 2025)
   - Major UI overhaul & bug fixes completed
   - Added Delete Report functionality
   - Fixed PDF Preview & Field Selection
