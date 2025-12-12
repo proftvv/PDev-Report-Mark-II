@@ -1,0 +1,8 @@
+v1.2.1 (12 Aralik 2025)
+  - Major UI overhaul & bug fixes completed.
+  - Added Delete Report functionality.
+  - Fixed PDF Preview & Field Selection.
+  - Implemented Rich Text Control Panel (Font, Size, Color, Align, Bold/Italic).
+  - Implemented Dynamic PDF Generation with Rich Styles.
+  - Added Easy Setup Script & Ngrok Guide.
+  - Updated Error Codes ([R-002] Added).

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import PDFCanvas from './components/PDFCanvas';
 import './App.css';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '';
@@ -64,7 +65,7 @@ function App() {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       // E-GEN-001: Genuine API Error
-      throw new Error(err.error || `[E-GEN-001] Sunucu hatası (${res.status})`);
+      throw new Error(err.error || `[S-001] Sunucu hatası (${res.status})`);
     }
     return res.json();
   }
@@ -83,7 +84,7 @@ function App() {
     }
   }
 
-  function renderFieldDots(fields) {
+  function renderFieldDots(fields, values = {}) {
     return (fields || []).map((field, idx) => {
       // field.x/y are in PDF coordinates (bottom-left origin)
       // We need to convert to % for CSS (top-left origin)
@@ -101,14 +102,47 @@ function App() {
         style.height = `${(field.h / 842) * 100}%`;
       }
 
+      const value = values[field.key];
+      const hasValue = value !== undefined && value !== '';
+
+      // Approximate pt to px conversion for preview (1pt = 1.33px)
+      // We also need to consider the scaling if the container is responsive, but for now let's assume 100% width.
+      // Since the box uses %, its size changes. Text size is fixed in px. 
+      // This might look different on small screens vs big screens. 
+      // Ideally text size should be viewport relative (vw) or scaled. 
+      // For simplicity, let's just render it as px.
+      const fontSize = (field.fontSize || 11);
+      const fontWeight = field.fontWeight || 'normal';
+      const fontStyle = field.fontStyle || 'normal';
+      const fontFamily = field.fontFamily || 'Helvetica';
+      const color = field.color || '#000000';
+      const textAlign = field.textAlign || 'left';
+
+      let justifyContent = 'flex-start';
+      if (textAlign === 'center') justifyContent = 'center';
+      if (textAlign === 'right') justifyContent = 'flex-end';
+
       return (
         <div
           key={`${field.key}-${idx}`}
           className={field.w ? "field-box" : "field-dot"}
-          style={style}
-          title={`${field.key} (x:${field.x.toFixed(0)}, y:${field.y.toFixed(0)})`}
+          style={{
+            ...style,
+            fontSize: `${fontSize}px`,
+            fontWeight,
+            fontStyle,
+            fontFamily, // Browser fonts map well to PDF fonts names usually
+            color,
+            justifyContent,
+            textAlign // for multi-line text if wrapped, though we use pre-wrap
+          }}
+          title={`${field.key}`}
         >
-          <span className="field-label">{field.key}</span>
+          {field.w ? (
+            hasValue ? <span style={{ width: '100%' }}>{value}</span> : <span className="field-label">{field.key}</span>
+          ) : (
+            <span className="field-label">{field.key}</span>
+          )}
         </div>
       );
     });
@@ -142,7 +176,7 @@ function App() {
       const data = await apiFetch('/templates', { method: 'GET' });
       setTemplates(data);
     } catch (err) {
-      setStatus(err.message);
+      setStatus(`[T-001] ${err.message}`);
     }
   }
 
@@ -151,7 +185,7 @@ function App() {
       const data = await apiFetch('/reports', { method: 'GET' });
       setReports(data);
     } catch (err) {
-      setStatus(err.message);
+      setStatus(`[R-001] ${err.message}`);
     }
   }
 
@@ -279,6 +313,30 @@ function App() {
     setDragCurrent(null);
   }
 
+  const [reportFieldMap, setReportFieldMap] = useState([]);
+
+  useEffect(() => {
+    // When selectedTemplate changes, initialize reportFieldMap
+    if (selectedTemplate && selectedTemplate.field_map_json) {
+      try {
+        const fields = typeof selectedTemplate.field_map_json === 'string'
+          ? JSON.parse(selectedTemplate.field_map_json)
+          : selectedTemplate.field_map_json;
+        setReportFieldMap(fields || []);
+      } catch (e) {
+        setReportFieldMap([]);
+      }
+    } else {
+      setReportFieldMap([]);
+    }
+  }, [selectedTemplate]);
+
+  // Temizle
+  const clearSelection = () => {
+    setStartPos(null);
+    setCurrentPos(null);
+  };
+
   async function handleTemplateUpload(e) {
     e.preventDefault();
     if (user?.username !== 'proftvv') {
@@ -327,19 +385,19 @@ function App() {
     }
     setStatus('Rapor oluşturuluyor...');
     try {
-      const body = {
-        template_id: Number(reportForm.templateId),
-        customer_id: reportForm.customerId ? Number(reportForm.customerId) : null,
-        field_data: reportForm.fieldData
-      };
       const data = await apiFetch('/reports', {
         method: 'POST',
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+          template_id: selectedTemplate.id,
+          customer_id: reportForm.customerId || null,
+          field_data: reportForm.fieldData,
+          field_map: JSON.stringify(reportFieldMap) // Send overrides
+        })
       });
       setStatus(`Rapor oluşturuldu: ${data.doc_number}`);
       await loadReports();
     } catch (err) {
-      setStatus(err.message);
+      setStatus(`[R-002] ${err.message}`);
     }
   }
 
@@ -372,7 +430,7 @@ function App() {
             {darkMode ? '☀️' : '🌙'}
           </button>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: '1.2' }}>
-            <span className="muted">v1.1.15</span>
+            <span className="muted">v1.1.17</span>
             <span className="muted" style={{ fontSize: '10px', color: '#2563eb' }}>Developed by Proftvv</span>
           </div>
           {user ? (
@@ -461,62 +519,159 @@ function App() {
                   {templatePreview && (
                     <div className="pdf-preview-container">
                       <h3>PDF önizleme - Tıklayarak alan ekleyin</h3>
-                      <div className="pdf-frame">
-                        <div className="pdf-content-wrapper">
-                          <object
-                            data={`${templatePreview}#toolbar=0`}
-                            type="application/pdf"
-                            className="pdf-embed"
-                          >
-                            <p>PDF görüntülenemedi. <a href={templatePreview} target="_blank" rel="noreferrer">Yeni sekmede aç</a></p>
-                          </object>
-                          <div className="pdf-dots">
-                            {renderFieldDots(selectedFields)}
-                          </div>
-                          {isAdmin && (
-                            <>
-                              <div
-                                className="pdf-click-overlay"
-                                onMouseDown={handleMouseDown}
-                                onMouseMove={handleMouseMove}
-                                onMouseUp={handleMouseUp}
-                                onMouseLeave={() => {
-                                  setMousePos({ x: -1, y: -1 });
-                                  setIsDragging(false);
-                                  setDragStart(null);
-                                }}
-                                title="Tıklayıp sürükleyerek alan seçin"
-                              />
-                              {/* Guide Lines (Crosshair) */}
-                              {mousePos.x > 0 && mousePos.y > 0 && !isDragging && (
-                                <>
-                                  <div className="guide-line-x" style={{ top: mousePos.y }}></div>
-                                  <div className="guide-line-y" style={{ left: mousePos.x }}></div>
-                                </>
-                              )}
-                              {/* Selection Drag Box */}
-                              {isDragging && dragStart && dragCurrent && (
-                                <div
-                                  className="selection-box"
-                                  style={{
-                                    left: Math.min(dragStart.x, dragCurrent.x),
-                                    top: Math.min(dragStart.y, dragCurrent.y),
-                                    width: Math.abs(dragCurrent.x - dragStart.x),
-                                    height: Math.abs(dragCurrent.y - dragStart.y)
-                                  }}
-                                ></div>
-                              )}
-                            </>
-                          )}
+                      <PDFCanvas file={templatePreview}>
+                        <div className="pdf-dots">
+                          {renderFieldDots(selectedFields)}
                         </div>
-                      </div>
+                        {isAdmin && (
+                          <>
+                            <div
+                              className="pdf-click-overlay"
+                              onMouseDown={handleMouseDown}
+                              onMouseMove={handleMouseMove}
+                              onMouseUp={handleMouseUp}
+                              onMouseLeave={() => {
+                                setMousePos({ x: -1, y: -1 });
+                                setIsDragging(false);
+                                setDragStart(null);
+                              }}
+                              title="Tıklayıp sürükleyerek alan seçin"
+                            />
+                            {/* Guide Lines (Crosshair) */}
+                            {mousePos.x > 0 && mousePos.y > 0 && !isDragging && (
+                              <>
+                                <div className="guide-line-x" style={{ top: mousePos.y }}></div>
+                                <div className="guide-line-y" style={{ left: mousePos.x }}></div>
+                              </>
+                            )}
+                            {/* Selection Drag Box */}
+                            {isDragging && dragStart && dragCurrent && (
+                              <div
+                                className="selection-box"
+                                style={{
+                                  left: Math.min(dragStart.x, dragCurrent.x),
+                                  top: Math.min(dragStart.y, dragCurrent.y),
+                                  width: Math.abs(dragCurrent.x - dragStart.x),
+                                  height: Math.abs(dragCurrent.y - dragStart.y)
+                                }}
+                              ></div>
+                            )}
+                          </>
+                        )}
+                      </PDFCanvas>
                       <div className="field-list">
                         <h4>Seçilen Alanlar:</h4>
                         {selectedFields.map((field, idx) => (
                           <div key={idx} className="field-item">
-                            <strong>{field.key}</strong> - x: {field.x.toFixed(0)}, y: {field.y.toFixed(0)}
+                            <strong>{field.key}</strong>
+                            <div className="field-toolbar">
+                              {/* Row 1: Font & Size */}
+                              <div className="toolbar-row">
+                                <select
+                                  value={field.fontFamily || 'Helvetica'}
+                                  onChange={(e) => {
+                                    const newFields = [...selectedFields];
+                                    newFields[idx] = { ...newFields[idx], fontFamily: e.target.value };
+                                    setSelectedFields(newFields);
+                                    setTemplateForm(prev => ({ ...prev, fieldMapJson: JSON.stringify(newFields, null, 2) }));
+                                  }}
+                                  title="Yazı Tipi"
+                                >
+                                  <option value="Helvetica">Helvetica</option>
+                                  <option value="TimesRoman">Times New Roman</option>
+                                  <option value="Courier">Courier</option>
+                                </select>
+                                <input
+                                  type="number"
+                                  value={field.fontSize || 11}
+                                  onChange={(e) => {
+                                    const newFields = [...selectedFields];
+                                    newFields[idx] = { ...newFields[idx], fontSize: parseInt(e.target.value) || 11 };
+                                    setSelectedFields(newFields);
+                                    setTemplateForm(prev => ({ ...prev, fieldMapJson: JSON.stringify(newFields, null, 2) }));
+                                  }}
+                                  title="Punto"
+                                  style={{ width: '40px' }}
+                                />
+                                <input
+                                  type="color"
+                                  value={field.color || '#000000'}
+                                  onChange={(e) => {
+                                    const newFields = [...selectedFields];
+                                    newFields[idx] = { ...newFields[idx], color: e.target.value };
+                                    setSelectedFields(newFields);
+                                    setTemplateForm(prev => ({ ...prev, fieldMapJson: JSON.stringify(newFields, null, 2) }));
+                                  }}
+                                  title="Renk"
+                                  style={{ width: '24px', height: '24px', padding: 0, border: 'none' }}
+                                />
+                              </div>
+                              {/* Row 2: Styles & Align */}
+                              <div className="toolbar-row">
+                                <div className="btn-group">
+                                  <button type="button"
+                                    className={`tool-btn ${field.fontWeight === 'bold' ? 'active' : ''}`}
+                                    onClick={() => {
+                                      const newFields = [...selectedFields];
+                                      newFields[idx] = { ...newFields[idx], fontWeight: field.fontWeight === 'bold' ? 'normal' : 'bold' };
+                                      setSelectedFields(newFields);
+                                      setTemplateForm(prev => ({ ...prev, fieldMapJson: JSON.stringify(newFields, null, 2) }));
+                                    }}
+                                    title="Kalın"
+                                  >B</button>
+                                  <button type="button"
+                                    className={`tool-btn ${field.fontStyle === 'italic' ? 'active' : ''}`}
+                                    onClick={() => {
+                                      const newFields = [...selectedFields];
+                                      newFields[idx] = { ...newFields[idx], fontStyle: field.fontStyle === 'italic' ? 'normal' : 'italic' };
+                                      setSelectedFields(newFields);
+                                      setTemplateForm(prev => ({ ...prev, fieldMapJson: JSON.stringify(newFields, null, 2) }));
+                                    }}
+                                    title="İtalik"
+                                    style={{ fontStyle: 'italic' }}
+                                  >I</button>
+                                </div>
+                                <div className="btn-group">
+                                  <button type="button"
+                                    className={`tool-btn ${!field.textAlign || field.textAlign === 'left' ? 'active' : ''}`}
+                                    onClick={() => {
+                                      const newFields = [...selectedFields];
+                                      newFields[idx] = { ...newFields[idx], textAlign: 'left' };
+                                      setSelectedFields(newFields);
+                                      setTemplateForm(prev => ({ ...prev, fieldMapJson: JSON.stringify(newFields, null, 2) }));
+                                    }}
+                                    title="Sola Hizala"
+                                  >L</button>
+                                  <button type="button"
+                                    className={`tool-btn ${field.textAlign === 'center' ? 'active' : ''}`}
+                                    onClick={() => {
+                                      const newFields = [...selectedFields];
+                                      newFields[idx] = { ...newFields[idx], textAlign: 'center' };
+                                      setSelectedFields(newFields);
+                                      setTemplateForm(prev => ({ ...prev, fieldMapJson: JSON.stringify(newFields, null, 2) }));
+                                    }}
+                                    title="Ortala"
+                                  >C</button>
+                                  <button type="button"
+                                    className={`tool-btn ${field.textAlign === 'right' ? 'active' : ''}`}
+                                    onClick={() => {
+                                      const newFields = [...selectedFields];
+                                      newFields[idx] = { ...newFields[idx], textAlign: 'right' };
+                                      setSelectedFields(newFields);
+                                      setTemplateForm(prev => ({ ...prev, fieldMapJson: JSON.stringify(newFields, null, 2) }));
+                                    }}
+                                    title="Sağa Hizala"
+                                  >R</button>
+                                </div>
+                              </div>
+                            </div>
+                            <div style={{ marginTop: '4px', fontSize: '10px', color: '#666' }}>
+                              x: {field.x.toFixed(0)}, y: {field.y.toFixed(0)}
+                            </div>
                             <button
                               type="button"
+                              className="danger-sm"
+                              style={{ marginTop: '4px', width: '100%' }}
                               onClick={() => {
                                 const newFields = selectedFields.filter((_, i) => i !== idx);
                                 setSelectedFields(newFields);
@@ -526,7 +681,7 @@ function App() {
                                 }));
                               }}
                             >
-                              Sil
+                              Alanı Sil
                             </button>
                           </div>
                         ))}
@@ -579,41 +734,135 @@ function App() {
               {selectedTemplate && reportPreview && (
                 <div className="pdf-preview-container">
                   <h3>PDF önizleme - Alanları doldurun</h3>
-                  <div className="pdf-frame">
-                    <div className="pdf-content-wrapper">
-                      <object
-                        data={`${reportPreview}#toolbar=0`}
-                        type="application/pdf"
-                        className="pdf-embed"
-                      >
-                        <p>PDF görüntülenemedi. <a href={reportPreview} target="_blank" rel="noreferrer">Yeni sekmede aç</a></p>
-                      </object>
-                      <div className="pdf-dots">
-                        {renderFieldDots(selectedTemplate.field_map_json || [])}
-                      </div>
+                  <PDFCanvas file={reportPreview}>
+                    <div className="pdf-dots">
+                      {renderFieldDots(reportFieldMap, reportForm.fieldData)}
                     </div>
-                  </div>
+                  </PDFCanvas>
                   <div className="field-form">
                     <h4>Alanları Doldur:</h4>
-                    {/* Ensure field_map_json is an array and map it */}
-                    {(Array.isArray(selectedTemplate.field_map_json) ? selectedTemplate.field_map_json : []).map((field) => (
-                      <label key={field.key}>
-                        {field.key}
+                    {reportFieldMap.map((field, idx) => (
+                      <div key={idx} className="form-group" style={{ marginBottom: '16px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
+                        <label>
+                          {field.key}
+                          <span style={{ fontSize: '10px', color: '#999', marginLeft: '6px' }}>
+                            (x:{field.x.toFixed(0)}, y:{field.y.toFixed(0)})
+                          </span>
+                        </label>
+
+                        {/* Rich Text Toolbar for Report Mode */}
+                        <div className="field-toolbar">
+                          <div className="toolbar-row">
+                            <select
+                              value={field.fontFamily || 'Helvetica'}
+                              onChange={(e) => {
+                                const newFields = [...reportFieldMap];
+                                newFields[idx] = { ...newFields[idx], fontFamily: e.target.value };
+                                setReportFieldMap(newFields);
+                              }}
+                              title="Yazı Tipi"
+                            >
+                              <option value="Helvetica">Helvetica</option>
+                              <option value="TimesRoman">Times New Roman</option>
+                              <option value="Courier">Courier</option>
+                            </select>
+                            <input
+                              type="number"
+                              value={field.fontSize || 11}
+                              onChange={(e) => {
+                                const newFields = [...reportFieldMap];
+                                newFields[idx] = { ...newFields[idx], fontSize: parseInt(e.target.value) || 11 };
+                                setReportFieldMap(newFields);
+                              }}
+                              title="Punto"
+                              style={{ width: '40px' }}
+                            />
+                            <input
+                              type="color"
+                              value={field.color || '#000000'}
+                              onChange={(e) => {
+                                const newFields = [...reportFieldMap];
+                                newFields[idx] = { ...newFields[idx], color: e.target.value };
+                                setReportFieldMap(newFields);
+                              }}
+                              title="Renk"
+                              style={{ width: '24px', height: '24px', padding: 0, border: 'none' }}
+                            />
+                          </div>
+                          <div className="toolbar-row">
+                            <div className="btn-group">
+                              <button type="button"
+                                className={`tool-btn ${field.fontWeight === 'bold' ? 'active' : ''}`}
+                                onClick={() => {
+                                  const newFields = [...reportFieldMap];
+                                  newFields[idx] = { ...newFields[idx], fontWeight: field.fontWeight === 'bold' ? 'normal' : 'bold' };
+                                  setReportFieldMap(newFields);
+                                }}
+                                title="Kalın"
+                              >B</button>
+                              <button type="button"
+                                className={`tool-btn ${field.fontStyle === 'italic' ? 'active' : ''}`}
+                                onClick={() => {
+                                  const newFields = [...reportFieldMap];
+                                  newFields[idx] = { ...newFields[idx], fontStyle: field.fontStyle === 'italic' ? 'normal' : 'italic' };
+                                  setReportFieldMap(newFields);
+                                }}
+                                title="İtalik"
+                                style={{ fontStyle: 'italic' }}
+                              >I</button>
+                            </div>
+                            <div className="btn-group">
+                              <button type="button"
+                                className={`tool-btn ${!field.textAlign || field.textAlign === 'left' ? 'active' : ''}`}
+                                onClick={() => {
+                                  const newFields = [...reportFieldMap];
+                                  newFields[idx] = { ...newFields[idx], textAlign: 'left' };
+                                  setReportFieldMap(newFields);
+                                }}
+                                title="Sola Hizala"
+                              >L</button>
+                              <button type="button"
+                                className={`tool-btn ${field.textAlign === 'center' ? 'active' : ''}`}
+                                onClick={() => {
+                                  const newFields = [...reportFieldMap];
+                                  newFields[idx] = { ...newFields[idx], textAlign: 'center' };
+                                  setReportFieldMap(newFields);
+                                }}
+                                title="Ortala"
+                              >C</button>
+                              <button type="button"
+                                className={`tool-btn ${field.textAlign === 'right' ? 'active' : ''}`}
+                                onClick={() => {
+                                  const newFields = [...reportFieldMap];
+                                  newFields[idx] = { ...newFields[idx], textAlign: 'right' };
+                                  setReportFieldMap(newFields);
+                                }}
+                                title="Sağa Hizala"
+                              >R</button>
+                            </div>
+                          </div>
+                        </div>
+
                         <input
                           type="text"
+                          className="form-control"
                           value={reportForm.fieldData[field.key] || ''}
-                          onChange={(e) => updateFieldData(field.key, e.target.value)}
+                          onChange={(e) => setReportForm({
+                            ...reportForm,
+                            fieldData: {
+                              ...reportForm.fieldData,
+                              [field.key]: e.target.value
+                            }
+                          })}
                           placeholder={`${field.key} değerini girin`}
+                          style={{ marginTop: '8px' }}
                         />
-                      </label>
+                      </div>
                     ))}
-                    {(!selectedTemplate.field_map_json || selectedTemplate.field_map_json.length === 0) && (
-                      <div className="muted">Bu şablonda tanımlı alan yok.</div>
-                    )}
+                    <button className="primary" onClick={handleCreateReport}>Rapor Üret</button>
                   </div>
                 </div>
               )}
-              <button type="submit">Rapor üret</button>
             </form>
 
             <div className="list">

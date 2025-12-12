@@ -37,7 +37,16 @@ router.post('/', authRequired, async (req, res) => {
       return res.status(404).json({ error: 'Sablon bulunamadi' });
     }
 
-    const fieldMap = template.field_map_json || [];
+    // Use provided field_map (overrides) or template defaults
+    // Frontend sends 'fieldMap' (camelCase) or 'field_map' (snake_case)? Check App.jsx. usually JSON.stringify(fieldMap).
+    // Let's assume body key is 'field_map' to match DB convention, but let's check what I plan to send.
+    // I will send 'field_map' from frontend.
+    let fieldMap = req.body.field_map;
+
+    if (!fieldMap) {
+      fieldMap = template.field_map_json || [];
+    }
+
     const { date, seq } = await reserveDocNumber();
     const docNumber = formatDocNumber(date, seq);
 
