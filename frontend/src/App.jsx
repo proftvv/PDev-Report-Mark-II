@@ -483,6 +483,7 @@ function App() {
       return;
     }
     setStatus('Rapor oluşturuluyor...');
+    setLastCreatedReport(null); // Reset previous
     try {
       const data = await apiFetch('/reports', {
         method: 'POST',
@@ -494,6 +495,7 @@ function App() {
         })
       });
       setStatus(`Rapor oluşturuldu: ${data.doc_number}`);
+      setLastCreatedReport(data); // Store created report for success message
       await loadReports();
     } catch (err) {
       setStatus(`[R-002] ${err.message}`);
