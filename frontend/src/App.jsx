@@ -73,6 +73,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [filteredReports, setFilteredReports] = useState([]);
+  const [lastCreatedReport, setLastCreatedReport] = useState(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -891,6 +892,43 @@ function App() {
                           </div>
                         ))}
                         <button className="primary" onClick={handleReportCreate}>Rapor Üret</button>
+
+                        {/* Success Message and PDF Open Button */}
+                        {lastCreatedReport && (
+                          <div style={{
+                            marginTop: '20px',
+                            padding: '15px',
+                            background: '#10b981',
+                            color: 'white',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}>
+                            <div>
+                              <strong>✓ Rapor başarıyla kaydedildi!</strong>
+                              <div style={{ fontSize: '14px', marginTop: '5px' }}>
+                                Rapor No: {lastCreatedReport.doc_number}
+                              </div>
+                            </div>
+                            <a
+                              href={`${API_BASE}/files/generated/${lastCreatedReport.doc_number}.pdf`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="secondary"
+                              style={{
+                                background: 'white',
+                                color: '#10b981',
+                                padding: '10px 20px',
+                                borderRadius: '6px',
+                                textDecoration: 'none',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              PDF Aç
+                            </a>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
