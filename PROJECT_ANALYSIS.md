@@ -5,7 +5,7 @@
 - **Amaç**: LAN üzerinde erişilebilen web arayüzüyle PDF şablonlarını doldurma ve raporları yönetme
 - **Stack**: Node.js + Express (Backend) | React + Vite (Frontend) | MySQL/MariaDB (Veritabanı)
 - **Repo**: [PDev-Report-Mark-II](https://github.com/proftvv/PDev-Report-Mark-II)
-- **Sürüm**: v0.1.10
+- **Sürüm**: v1.2.1
 
 ---
 
