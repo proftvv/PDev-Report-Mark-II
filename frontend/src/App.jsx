@@ -526,6 +526,42 @@ function App() {
     }
   }
 
+  async function handleRenameTemplate(id, newName) {
+    setLoading(true);
+    try {
+      await apiFetch(`/templates/${id}/rename`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName })
+      });
+      setStatus('✅ Şablon adı güncellendi');
+      setLoading(false);
+      await loadTemplates();
+    } catch (err) {
+      setStatus(`❌ ${err.message}`);
+      setLoading(false);
+    }
+  }
+
+  async function handleEditTemplate(id) {
+    // Edit modu aç - modal veya accordion açabilir
+    // Şimdilik alert ile uyarı
+    alert('Şablon düzenleme özelliği yakında eklenecektir');
+  }
+
+  async function handleDeleteTemplate(id) {
+    setLoading(true);
+    try {
+      await apiFetch(`/templates/${id}`, { method: 'DELETE' });
+      setStatus('✅ Şablon silindi');
+      setLoading(false);
+      await loadTemplates();
+    } catch (err) {
+      setStatus(`❌ ${err.message}`);
+      setLoading(false);
+    }
+  }
+
   const isAdmin = user?.username === 'proftvv';
 
   return (
@@ -621,124 +657,6 @@ function App() {
 
         {user && (
           <>
-            <section className="card">
-              <div className="section-head">
-                <h2>Şablonlar</h2>
-                <button onClick={loadTemplates} className="secondary">Yenile</button>
-              </div>
-              <div className="list">
-                {templates.length === 0 && <div className="muted">Şablon yok</div>}
-                {templates.map((t) => (
-                  <div key={t.id} className="list-item">
-                    <div>
-                      <strong>{t.name}</strong>
-                      <div className="muted">{t.description}</div>
-                    </div>
-                    <div className="muted">#{t.id}</div>
-                  </div>
-                ))}
-              </div>
-              {isAdmin && (
-                <details className="accordion">
-                  <summary>Şablon ekle (sadece proftvv)</summary>
-                  <form className="form-grid" onSubmit={handleTemplateUpload}>
-                    <label>
-                      Ad
-                      <input
-                        value={templateForm.name}
-                        onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
-                        required
-                      />
-                    </label>
-                    <label>
-                      Açıklama
-                      <input
-                        value={templateForm.description}
-                        onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
-                      />
-                    </label>
-                    <label>
-                      PDF Şablon
-                      <input
-                        type="file"
-                        accept="application/pdf"
-                        onChange={(e) => setTemplateFile(e.target.files?.[0] || null)}
-                        required
-                      />
-                    </label>
-                    {templatePreview && (
-                      <div className="pdf-preview-container">
-                        <h3>PDF önizleme - Tıklayarak alan ekleyin</h3>
-                        <PDFCanvas file={templatePreview}>
-                          <div className="pdf-dots">
-                            {renderFieldDots(selectedFields)}
-                          </div>
-                          {isAdmin && (
-                            <>
-                              <div
-                                className="pdf-click-overlay"
-                                onMouseDown={handleMouseDown}
-                                onMouseMove={handleMouseMove}
-                                onMouseUp={handleMouseUp}
-                                onMouseLeave={() => {
-                                  setMousePos({ x: -1, y: -1 });
-                                  setIsDragging(false);
-                                  setDragStart(null);
-                                }}
-                                title="Tıklayıp sürükleyerek alan seçin"
-                              />
-                              {/* Guide Lines (Crosshair) */}
-                              {mousePos.x > 0 && mousePos.y > 0 && !isDragging && (
-                                <>
-                                  <div className="guide-line-x" style={{ top: mousePos.y }}></div>
-                                  <div className="guide-line-y" style={{ left: mousePos.x }}></div>
-                                </>
-                              )}
-                              {/* Selection Drag Box */}
-                              {isDragging && dragStart && dragCurrent && (
-                                <div
-                                  className="selection-box"
-                                  style={{
-                                    left: Math.min(dragStart.x, dragCurrent.x),
-                                    top: Math.min(dragStart.y, dragCurrent.y),
-                                    width: Math.abs(dragCurrent.x - dragStart.x),
-                                    height: Math.abs(dragCurrent.y - dragStart.y)
-                                  }}
-                                ></div>
-                              )}
-                            </>
-                          )}
-                        </PDFCanvas>
-                        <div className="field-list">
-                          <h4>Seçilen Alanlar:</h4>
-                          {selectedFields.map((field, idx) => (
-                            <div key={idx} className="field-item">
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <strong>{field.key}</strong>
-                                <button type="button" className="danger-sm" onClick={() => removeField(idx)}>Sil</button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    <label>
-                      field_map_json (otomatik doldurulur)
-                      <textarea
-                        rows={6}
-                        value={templateForm.fieldMapJson}
-                        onChange={(e) => setTemplateForm({ ...templateForm, fieldMapJson: e.target.value })}
-                      />
-                    </label>
-                    <button type="submit" disabled={loading}>
-                      {loading ? '⏳ Kaydediliyor...' : 'Şablonu kaydet'}
-                    </button>
-                  </form>
-                </details>
-              )
-              }
-            </section >
-
             {/* Dashboard Tab - Report Creation */}
             {activeTab === 'dashboard' && (
               <section className="card">
@@ -1028,6 +946,160 @@ function App() {
                     ))
                   )}
                 </div>
+              </section>
+            )}
+
+            {/* Templates Tab - Admin Only */}
+            {activeTab === 'templates' && (
+              <section className="card">
+                <div className="section-head">
+                  <h2>Şablonlar Yönetimi</h2>
+                  <button onClick={loadTemplates} className="secondary">Yenile</button>
+                </div>
+
+                <div className="list">
+                  {templates.length === 0 && <div className="muted">Şablon yok</div>}
+                  {templates.map((t) => (
+                    <div key={t.id} className="list-item" style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      gap: '10px'
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <strong>{t.name}</strong>
+                        <div className="muted">{t.description}</div>
+                      </div>
+                      <div className="actions" style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                        <button
+                          className="secondary"
+                          onClick={() => {
+                            const newName = prompt('Yeni adı girin:', t.name);
+                            if (newName && newName.trim() !== t.name) {
+                              handleRenameTemplate(t.id, newName);
+                            }
+                          }}
+                          title="Yeniden Adlandır"
+                        >
+                          ✏️ Adını Değiştir
+                        </button>
+                        <button
+                          className="secondary"
+                          onClick={() => handleEditTemplate(t.id)}
+                          title="Düzenle"
+                        >
+                          🔧 Düzenle
+                        </button>
+                        <button
+                          className="danger"
+                          onClick={() => {
+                            if (confirm(`"${t.name}" şablonunu silmek istediğinize emin misiniz?`)) {
+                              handleDeleteTemplate(t.id);
+                            }
+                          }}
+                          title="Sil"
+                        >
+                          🗑️ Sil
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <details className="accordion" style={{ marginTop: '20px' }}>
+                  <summary>Yeni Şablon Ekle</summary>
+                  <form className="form-grid" onSubmit={handleTemplateUpload}>
+                    <label>
+                      Ad
+                      <input
+                        value={templateForm.name}
+                        onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Açıklama
+                      <input
+                        value={templateForm.description}
+                        onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
+                      />
+                    </label>
+                    <label>
+                      PDF Şablon
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => setTemplateFile(e.target.files?.[0] || null)}
+                        required
+                      />
+                    </label>
+                    {templatePreview && (
+                      <div className="pdf-preview-container">
+                        <h3>PDF önizleme - Tıklayarak alan ekleyin</h3>
+                        <PDFCanvas file={templatePreview}>
+                          <div className="pdf-dots">
+                            {renderFieldDots(selectedFields)}
+                          </div>
+                          <>
+                            <div
+                              className="pdf-click-overlay"
+                              onMouseDown={handleMouseDown}
+                              onMouseMove={handleMouseMove}
+                              onMouseUp={handleMouseUp}
+                              onMouseLeave={() => {
+                                setMousePos({ x: -1, y: -1 });
+                                setIsDragging(false);
+                                setDragStart(null);
+                              }}
+                              title="Tıklayıp sürükleyerek alan seçin"
+                            />
+                            {/* Guide Lines (Crosshair) */}
+                            {mousePos.x > 0 && mousePos.y > 0 && !isDragging && (
+                              <>
+                                <div className="guide-line-x" style={{ top: mousePos.y }}></div>
+                                <div className="guide-line-y" style={{ left: mousePos.x }}></div>
+                              </>
+                            )}
+                            {/* Selection Drag Box */}
+                            {isDragging && dragStart && dragCurrent && (
+                              <div
+                                className="selection-box"
+                                style={{
+                                  left: Math.min(dragStart.x, dragCurrent.x),
+                                  top: Math.min(dragStart.y, dragCurrent.y),
+                                  width: Math.abs(dragCurrent.x - dragStart.x),
+                                  height: Math.abs(dragCurrent.y - dragStart.y)
+                                }}
+                              ></div>
+                            )}
+                          </>
+                        </PDFCanvas>
+                        <div className="field-list">
+                          <h4>Seçilen Alanlar:</h4>
+                          {selectedFields.map((field, idx) => (
+                            <div key={idx} className="field-item">
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <strong>{field.key}</strong>
+                                <button type="button" className="danger-sm" onClick={() => removeField(idx)}>Sil</button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <label>
+                      field_map_json (otomatik doldurulur)
+                      <textarea
+                        rows={6}
+                        value={templateForm.fieldMapJson}
+                        onChange={(e) => setTemplateForm({ ...templateForm, fieldMapJson: e.target.value })}
+                      />
+                    </label>
+                    <button type="submit" disabled={loading}>
+                      {loading ? '⏳ Kaydediliyor...' : 'Şablonu kaydet'}
+                    </button>
+                  </form>
+                </details>
               </section>
             )}
           </>

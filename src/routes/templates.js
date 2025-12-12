@@ -86,4 +86,104 @@ router.get('/:id', authRequired, async (req, res) => {
   }
 });
 
+// Sablon adını güncelleme - Admin only
+router.put('/:id/rename', authRequired, adminOnly, async (req, res) => {
+  const { name } = req.body;
+  
+  if (!name || !name.trim()) {
+    return sendError(res, 'VALIDATION.MISSING_FIELD', { field: 'name' });
+  }
+
+  try {
+    const [rows] = await pool.execute('SELECT * FROM templates WHERE id = ?', [req.params.id]);
+    const template = rows[0];
+    if (!template) return sendError(res, 'RESOURCE.TEMPLATE_NOT_FOUND');
+
+    await pool.execute(
+      'UPDATE templates SET name = ? WHERE id = ?',
+      [name.trim(), req.params.id]
+    );
+
+    logAdminAction(req, 'TEMPLATE_RENAMED', { 
+      templateId: req.params.id,
+      oldName: template.name,
+      newName: name
+    });
+
+    return res.json({ success: true, id: req.params.id, name });
+  } catch (err) {
+    console.error('Template rename error:', err);
+    return sendError(res, 'DATABASE.QUERY_ERROR');
+  }
+});
+
+// Sablon alanlarını güncelleme - Admin only
+router.put('/:id', authRequired, adminOnly, async (req, res) => {
+  const { name, description, field_map_json } = req.body;
+
+  try {
+    const [rows] = await pool.execute('SELECT * FROM templates WHERE id = ?', [req.params.id]);
+    const template = rows[0];
+    if (!template) return sendError(res, 'RESOURCE.TEMPLATE_NOT_FOUND');
+
+    const updateFields = {};
+    if (name) updateFields.name = name.trim();
+    if (description !== undefined) updateFields.description = description;
+    if (field_map_json) {
+      try {
+        JSON.parse(field_map_json);
+        updateFields.field_map_json = field_map_json;
+      } catch {
+        return sendError(res, 'VALIDATION.INVALID_JSON');
+      }
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+      return sendError(res, 'VALIDATION.NO_UPDATE_FIELDS');
+    }
+
+    const setClause = Object.keys(updateFields).map(k => `${k} = ?`).join(', ');
+    const values = [...Object.values(updateFields), req.params.id];
+
+    await pool.execute(`UPDATE templates SET ${setClause} WHERE id = ?`, values);
+
+    logAdminAction(req, 'TEMPLATE_UPDATED', { 
+      templateId: req.params.id,
+      templateName: name || template.name,
+      changes: Object.keys(updateFields)
+    });
+
+    return res.json({ success: true, id: req.params.id, ...updateFields });
+  } catch (err) {
+    console.error('Template update error:', err);
+    return sendError(res, 'DATABASE.QUERY_ERROR');
+  }
+});
+
+// Sablon silme - Admin only
+router.delete('/:id', authRequired, adminOnly, async (req, res) => {
+  try {
+    const [rows] = await pool.execute('SELECT * FROM templates WHERE id = ?', [req.params.id]);
+    const template = rows[0];
+    if (!template) return sendError(res, 'RESOURCE.TEMPLATE_NOT_FOUND');
+
+    // PDF dosyasını sil
+    const filePath = buildTemplatePath(template.file_path);
+    await fs.unlink(filePath).catch(() => {});
+
+    await pool.execute('DELETE FROM templates WHERE id = ?', [req.params.id]);
+
+    logAdminAction(req, 'TEMPLATE_DELETED', { 
+      templateId: req.params.id,
+      templateName: template.name,
+      fileName: template.file_path
+    });
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('Template delete error:', err);
+    return sendError(res, 'DATABASE.QUERY_ERROR');
+  }
+});
+
 module.exports = router;

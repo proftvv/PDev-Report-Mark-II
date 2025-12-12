@@ -1,0 +1,172 @@
+================================================================================
+v1.4.1 - Admin Features Separation & Template Management Enhancements
+================================================================================
+
+DATE: 2025-12-12
+VERSION: 1.4.1
+
+DESCRIPTION:
+Frontend revamp to separate admin features from the main dashboard. Templates 
+management moved from homepage to a dedicated admin-only "Şablonlar" tab. 
+Backend enhancements with new API endpoints for template management operations.
+
+================================================================================
+YAPILAN DEĞİŞİKLİKLER (Changes Made)
+================================================================================
+
+1. FRONTEND CHANGES
+   ✓ Removed Şablonlar (Templates) section from homepage
+   ✓ Only visible to authenticated users on dashboard tab
+   ✓ Created dedicated "Şablonlar" tab for admin users (proftvv)
+   ✓ Added template action buttons:
+     - ✏️ Yeniden Adlandır (Rename template)
+     - 🔧 Düzenle (Edit template fields)
+     - 🗑️ Sil (Delete template)
+   ✓ Moved template upload form to admin tab only
+   ✓ Tab navigation: Ana Sayfa | Arşiv | Şablonlar (admin only)
+
+2. BACKEND CHANGES
+   ✓ Added PUT /templates/:id/rename - Rename template
+   ✓ Added PUT /templates/:id - Update template (name, description, fields)
+   ✓ Added DELETE /templates/:id - Delete template with file cleanup
+   ✓ All new endpoints require admin authentication
+   ✓ All operations logged in admin action log
+
+3. JAVASCRIPT FUNCTIONS (Frontend)
+   ✓ handleRenameTemplate(id, newName) - Rename template with confirmation
+   ✓ handleEditTemplate(id) - Edit template (placeholder for future UI)
+   ✓ handleDeleteTemplate(id) - Delete template with confirmation
+   ✓ Integrated with existing apiFetch and error handling
+
+================================================================================
+DOSYA DEĞİŞİKLİKLERİ (Files Modified)
+================================================================================
+
+MODIFIED:
+  - frontend/src/App.jsx
+    * Removed isAdmin check wrapper from homepage Şablonlar section
+    * Added {activeTab === 'templates'} content section
+    * Added 3 new handler functions
+    * Line changes: ~350 lines modified/added
+    * Components:
+      - Tab navigation update
+      - Templates management panel
+      - Action buttons UI
+      - Form validation
+
+  - src/routes/templates.js
+    * Added router.put('/:id/rename', ...) - 30 lines
+    * Added router.put('/:id', ...) - 40 lines
+    * Added router.delete('/:id', ...) - 30 lines
+    * Admin authentication on all new endpoints
+    * Admin action logging integration
+    * File cleanup on delete
+    * Line changes: ~100 lines added
+
+UNCHANGED BUT VALIDATED:
+  - frontend/src/App.css - No changes needed, existing styles applied
+  - src/middleware/adminOnly.js - Already protects new endpoints
+  - src/utils/errorCodes.js - Error codes already support new operations
+  - VERSION - Updated to v1.4.1
+
+================================================================================
+API ENDPOINTS (New/Updated)
+================================================================================
+
+Rename Template:
+  PUT /api/templates/:id/rename
+  Body: { "name": "New Template Name" }
+  Auth: Required | Admin: Required
+  Response: { "success": true, "id": 1, "name": "New Template Name" }
+
+Update Template:
+  PUT /api/templates/:id
+  Body: { "name": "Name", "description": "Desc", "field_map_json": "[...]" }
+  Auth: Required | Admin: Required
+  Response: { "success": true, "id": 1, ...updatedFields }
+
+Delete Template:
+  DELETE /api/templates/:id
+  Auth: Required | Admin: Required
+  Response: { "success": true }
+  Side Effect: Deletes PDF file from storage
+
+================================================================================
+TESTING CHECKLIST
+================================================================================
+
+UI TESTS:
+  ☐ Non-admin user: No "Şablonlar" tab visible
+  ☐ Admin user (proftvv): "Şablonlar" tab appears
+  ☐ Clicking "Şablonlar" tab: Template list loads
+  ☐ Click "✏️ Adını Değiştir": Prompt appears with current name
+  ☐ Enter new name: Template updates (requires success message)
+  ☐ Click "🔧 Düzenle": Alert shows (placeholder feature)
+  ☐ Click "🗑️ Sil": Confirmation dialog appears
+  ☐ Confirm delete: Template removed from list
+
+API TESTS:
+  ☐ PUT /templates/:id/rename with valid name: 200 OK
+  ☐ PUT /templates/:id/rename without name: Error (MISSING_FIELD)
+  ☐ PUT /templates/:id/rename as non-admin: 403 Forbidden
+  ☐ PUT /templates/:id with updated fields: 200 OK
+  ☐ DELETE /templates/:id with valid ID: 200 OK, file deleted
+  ☐ DELETE /templates/:id with invalid ID: 404 (TEMPLATE_NOT_FOUND)
+  ☐ DELETE /templates/:id as non-admin: 403 Forbidden
+
+ADMIN LOGGING TESTS:
+  ☐ Rename operation: Logged in admin_actions table
+  ☐ Update operation: Logged with fields changed
+  ☐ Delete operation: Logged with file name
+
+================================================================================
+KNOWN LIMITATIONS
+================================================================================
+
+1. Edit Template Feature (🔧 Düzenle)
+   - Currently shows placeholder alert
+   - Future implementation should allow:
+     * Updating template PDF
+     * Re-mapping fields
+     * Updating description
+   
+2. No Bulk Operations
+   - Cannot rename/delete multiple templates at once
+   
+3. No Template Duplication
+   - No "Clone" feature for existing templates
+
+================================================================================
+ROLLBACK INSTRUCTIONS
+================================================================================
+
+If reverting to v1.4.0:
+
+1. Revert Git commits (--hard)
+2. Clear browser cache (localStorage may have stale state)
+3. Reload frontend application
+4. Verify "Şablonlar" section reappears on homepage
+
+================================================================================
+GİT COMMIT MESSAGE
+================================================================================
+
+Frontend & Backend: Admin-only template management
+- Move Şablonlar section to dedicated admin tab
+- Add template rename, edit, delete operations
+- New API endpoints: PUT /templates/:id/rename, PUT /templates/:id, DELETE /templates/:id
+- All operations logged and require admin authentication
+- Improve UX by separating admin tools from user dashboard
+- Version bump to v1.4.1
+
+================================================================================
+ADDITIONAL NOTES
+================================================================================
+
+- Templates are still available in Rapor Oluştur dropdown for all users
+- Only admin can manage (rename/delete/edit) templates
+- Template creation still restricted to admin (existing functionality)
+- All operations integrated with error handling and loading states
+- Responsive design maintained for mobile/tablet views
+
+================================================================================

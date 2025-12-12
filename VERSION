@@ -1,6 +1,7 @@
-PROJECT VERSION: 1.4.0
+PROJECT VERSION: 1.4.1
 
 History:
+- v1.4.1: Admin Features Separation (Templates management moved to admin tab only, added template rename/edit/delete features)
 - v1.4.0: Phase 4 - RBAC & UX Enhancements (Error codes, Role validation, Admin features hiding)
 - v1.3.0: Phase 3 - Reports Dashboard Upgrade (Tab Navigation, Archive, Search & Filters)
 - v1.2.0: Phase 2 - Enhanced Authentication (Login with username OR custom_id)
