@@ -271,6 +271,13 @@ a.secondary:hover {
   /* Scrollbar eklendi */
 }
 
+.pdf-content-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 842px;
+  /* A4 height */
+}
+
 .pdf-embed {
   width: 100%;
   height: 100%;

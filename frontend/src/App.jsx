@@ -578,15 +578,17 @@ function App() {
                 <div className="pdf-preview-container">
                   <h3>PDF önizleme - Alanları doldurun</h3>
                   <div className="pdf-frame">
-                    <object
-                      data={`${reportPreview}#toolbar=0`}
-                      type="application/pdf"
-                      className="pdf-embed"
-                    >
-                      <p>PDF görüntülenemedi. <a href={reportPreview} target="_blank" rel="noreferrer">Yeni sekmede aç</a></p>
-                    </object>
-                    <div className="pdf-dots">
-                      {renderFieldDots(selectedTemplate.field_map_json || [])}
+                    <div className="pdf-content-wrapper">
+                      <object
+                        data={`${reportPreview}#toolbar=0`}
+                        type="application/pdf"
+                        className="pdf-embed"
+                      >
+                        <p>PDF görüntülenemedi. <a href={reportPreview} target="_blank" rel="noreferrer">Yeni sekmede aç</a></p>
+                      </object>
+                      <div className="pdf-dots">
+                        {renderFieldDots(selectedTemplate.field_map_json || [])}
+                      </div>
                     </div>
                   </div>
                   <div className="field-form">
