@@ -462,51 +462,53 @@ function App() {
                     <div className="pdf-preview-container">
                       <h3>PDF önizleme - Tıklayarak alan ekleyin</h3>
                       <div className="pdf-frame">
-                        <object
-                          data={`${templatePreview}#toolbar=0`}
-                          type="application/pdf"
-                          className="pdf-embed"
-                        >
-                          <p>PDF görüntülenemedi. <a href={templatePreview} target="_blank" rel="noreferrer">Yeni sekmede aç</a></p>
-                        </object>
-                        <div className="pdf-dots">
-                          {renderFieldDots(selectedFields)}
-                        </div>
-                        {isAdmin && (
-                          <>
-                            <div
-                              className="pdf-click-overlay"
-                              onMouseDown={handleMouseDown}
-                              onMouseMove={handleMouseMove}
-                              onMouseUp={handleMouseUp}
-                              onMouseLeave={() => {
-                                setMousePos({ x: -1, y: -1 });
-                                setIsDragging(false);
-                                setDragStart(null);
-                              }}
-                              title="Tıklayıp sürükleyerek alan seçin"
-                            />
-                            {/* Guide Lines (Crosshair) */}
-                            {mousePos.x > 0 && mousePos.y > 0 && !isDragging && (
-                              <>
-                                <div className="guide-line-x" style={{ top: mousePos.y }}></div>
-                                <div className="guide-line-y" style={{ left: mousePos.x }}></div>
-                              </>
-                            )}
-                            {/* Selection Drag Box */}
-                            {isDragging && dragStart && dragCurrent && (
+                        <div className="pdf-content-wrapper">
+                          <object
+                            data={`${templatePreview}#toolbar=0`}
+                            type="application/pdf"
+                            className="pdf-embed"
+                          >
+                            <p>PDF görüntülenemedi. <a href={templatePreview} target="_blank" rel="noreferrer">Yeni sekmede aç</a></p>
+                          </object>
+                          <div className="pdf-dots">
+                            {renderFieldDots(selectedFields)}
+                          </div>
+                          {isAdmin && (
+                            <>
                               <div
-                                className="selection-box"
-                                style={{
-                                  left: Math.min(dragStart.x, dragCurrent.x),
-                                  top: Math.min(dragStart.y, dragCurrent.y),
-                                  width: Math.abs(dragCurrent.x - dragStart.x),
-                                  height: Math.abs(dragCurrent.y - dragStart.y)
+                                className="pdf-click-overlay"
+                                onMouseDown={handleMouseDown}
+                                onMouseMove={handleMouseMove}
+                                onMouseUp={handleMouseUp}
+                                onMouseLeave={() => {
+                                  setMousePos({ x: -1, y: -1 });
+                                  setIsDragging(false);
+                                  setDragStart(null);
                                 }}
-                              ></div>
-                            )}
-                          </>
-                        )}
+                                title="Tıklayıp sürükleyerek alan seçin"
+                              />
+                              {/* Guide Lines (Crosshair) */}
+                              {mousePos.x > 0 && mousePos.y > 0 && !isDragging && (
+                                <>
+                                  <div className="guide-line-x" style={{ top: mousePos.y }}></div>
+                                  <div className="guide-line-y" style={{ left: mousePos.x }}></div>
+                                </>
+                              )}
+                              {/* Selection Drag Box */}
+                              {isDragging && dragStart && dragCurrent && (
+                                <div
+                                  className="selection-box"
+                                  style={{
+                                    left: Math.min(dragStart.x, dragCurrent.x),
+                                    top: Math.min(dragStart.y, dragCurrent.y),
+                                    width: Math.abs(dragCurrent.x - dragStart.x),
+                                    height: Math.abs(dragCurrent.y - dragStart.y)
+                                  }}
+                                ></div>
+                              )}
+                            </>
+                          )}
+                        </div>
                       </div>
                       <div className="field-list">
                         <h4>Seçilen Alanlar:</h4>
