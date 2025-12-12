@@ -1,6 +1,7 @@
-PROJECT VERSION: 1.1.17
+PROJECT VERSION: 1.1.18
 
 History:
+- v1.1.18: Fixed customer_id database type mismatch. Added customer_id input field. Enhanced pdfService error handling. Added ErrorBoundary and Debug Console.
 - v1.1.17: Added Rich Text controls to Report Generation. Version synchronization.
 - v1.1.15: PDF Viewer Refactor (react-pdf), Error Codes.
 - v1.1.14: Initial scrolling fix attempts.

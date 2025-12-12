@@ -1,6 +1,6 @@
 {
   "name": "report-mark2",
-  "version": "1.1.17",
+  "version": "1.1.18",
   "description": "LAN uzerinden erisilen PDF rapor doldurma ve versiyonlama uygulamasi",
   "main": "src/app.js",
   "scripts": {

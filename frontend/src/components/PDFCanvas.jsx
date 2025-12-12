@@ -27,7 +27,8 @@ function PDFCanvas({ file, children, onLoadSuccess }) {
                 error={<div>PDF yüklenemedi. <br /> <span style={{ fontSize: '10px', color: 'red' }}>{window.pdfError}</span></div>}
                 onLoadError={(error) => {
                     console.error('PDF Load Error:', error);
-                    alert('PDF Hatası: ' + error.message);
+                    // alert('PDF Hatası: ' + error.message);
+                    if (onLoadError) onLoadError(error); // Call parent handler if exists
                 }}
             >
                 <Page

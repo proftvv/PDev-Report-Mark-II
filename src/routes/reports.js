@@ -59,12 +59,23 @@ router.post('/', authRequired, async (req, res) => {
       outputName
     });
 
+    // Parse customer_id: convert to integer or null
+    // Frontend sends it as a string, but DB expects INT or NULL
+    let parsedCustomerId = null;
+    if (customer_id && customer_id.trim() !== '') {
+      const parsed = parseInt(customer_id, 10);
+      if (!isNaN(parsed)) {
+        parsedCustomerId = parsed;
+      }
+      // If it's a non-numeric string, we'll store it as null
+    }
+
     const [result] = await pool.execute(
       `INSERT INTO reports (template_id, customer_id, doc_number, file_path, created_by, status, filled_json)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         template_id,
-        customer_id || null,
+        parsedCustomerId,
         docNumber,
         pdfPath,
         req.session.user.id,

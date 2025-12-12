@@ -41,8 +41,14 @@ async function fillPdfTemplate({ templatePath, fieldData, fieldMap, docNumber, o
   };
 
   (fieldMap || []).forEach(field => {
+    // Skip invalid fields
+    if (!field || typeof field.x !== 'number' || typeof field.y !== 'number') {
+      console.warn('Skipping invalid field:', field);
+      return;
+    }
+
     const page = pdfDoc.getPage(field.page || 0);
-    const value = fieldData[field.key] || '';
+    const value = String(fieldData[field.key] || ''); // Ensure value is a string
     if (!page) return;
 
     // Font Selection
@@ -58,32 +64,31 @@ async function fillPdfTemplate({ templatePath, fieldData, fieldMap, docNumber, o
     const color = hexToRgb(field.color || '#000000');
 
     let x = field.x;
-    let y = field.y;
+    const y = field.y; // y is now const and not modified by box logic
+    const textAlign = field.textAlign || 'left';
 
-    if (field.w && field.h) {
-      const text = String(value);
-      const textWidth = selectedFont.widthOfTextAtSize(text, size);
-      const textAlign = field.textAlign || 'left';
+    // Calculate text width for alignment
+    const textWidth = selectedFont.widthOfTextAtSize(value, size);
 
-      // Vertical Center (Default for boxes)
-      y = field.y + (field.h / 2) - (size / 4);
-
-      // Horizontal Alignment
-      if (textAlign === 'center') {
-        x = field.x + (field.w - textWidth) / 2;
-      } else if (textAlign === 'right') {
-        x = field.x + field.w - textWidth - 2; // -2 padding
-      } else {
+    if (textAlign === 'center') {
+      const boxWidth = field.w || 100; // Use a default boxWidth if not provided
+      x = field.x + (boxWidth / 2) - (textWidth / 2);
+    } else if (textAlign === 'right') {
+      const boxWidth = field.w || 100; // Use a default boxWidth if not provided
+      x = field.x + boxWidth - textWidth;
+    } else {
+      // Default to left alignment, potentially with padding if a box width is defined
+      if (field.w) {
         x = field.x + 2; // Left with padding
       }
     }
 
-    page.drawText(String(value), {
-      x: x,
-      y: y,
-      size: size,
+    page.drawText(value, {
+      x,
+      y,
+      size,
       font: selectedFont,
-      color: color
+      color
     });
   });
 
