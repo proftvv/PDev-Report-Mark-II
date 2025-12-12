@@ -1,0 +1,79 @@
+========================================================================
+             REPORT MARK II - SİSTEM VE KOMUT KILAVUZU
+========================================================================
+Sürüm: v1.2.0
+Geliştirici: Proftvv
+Tarih: 12 Aralık 2025
+
+MEVCUT PROJE ANALİZİ
+-------------------
+Report Mark II, PDF şablonlarını yöneten, dinamik veri girişi sağlayan ve 
+bu verileri şablonlara işleyerek PDF raporları üreten tam kapsamlı bir web yazılımıdır.
+
+Çalışma Yapısı:
+- Backend: NodeJS + Express (Port: 3000)
+- Frontend: React + Vite (Port: 5173)
+- Veritabanı: MySQL/MariaDB (Port: 3306)
+
+Kullanıcı Bilgileri:
+- Kullanıcı Adı: proftvv
+- Şifre: 2503
+
+------------------------------------------------------------------------
+                             KONSOLE KOMUTLARI
+------------------------------------------------------------------------
+Aşağıdaki komutları projenin ana klasöründe (z:\MARK-II) terminalde çalıştırabilirsiniz.
+
+1. PROJEYİ BAŞLATMA (Önerilen)
+   Komut: npm run start:all
+   Açıklama: Hem Backend'i hem de Frontend'i aynı anda tek terminalde başlatır.
+   Kullanım: "npm run start:all" yazıp enter'a basın.
+
+2. HIZLI KURULUM VE BAŞLATMA (Bat Dosyası)
+   Dosya: easy-setup-win11.bat
+   Açıklama: Çift tıkladığınızda veritabanını kurar, eksikleri yükler ve projeyi açar.
+   Komut: .\easy-setup-win11.bat
+
+3. SADECE API (BACKEND) BAŞLATMA
+   Komut: npm start
+   Açıklama: Sadece sunucuyu (port 3000) ayağa kaldırır. Arayüz açılmaz.
+
+4. GITHUB'A HIZLI PUSH ATMA (Script)
+   Dosya: push-to-github.ps1
+   Açıklama: Tek komutla değişiklikleri commit'ler ve GitHub'a gönderir.
+   Kullanım: PowerShell'de ".\push-to-github.ps1" yazıp enter'a basın.
+
+5. GITHUB'A PUSH ATMA (Manuel NPM Script)
+   Komut: npm run git:push
+   Açıklama: Otomatik "auto-update" mesajıyla kodları GitHub'a gönderir.
+
+6. TESTLERİ ÇALIŞTIRMA
+   Komut: npm test
+   Açıklama: Backend API testlerini çalıştırır ve sistem sağlığını kontrol eder.
+
+7. GİRİŞ HATASI GİDERME
+   Dosya: check-fix-user.js
+   Açıklama: Eğer "proftvv" kullanıcısı "2503" şifresiyle giremezse bunu çalıştır.
+   Komut: node check-fix-user.js
+
+------------------------------------------------------------------------
+                           INTERNETE AÇMA (NGROK)
+------------------------------------------------------------------------
+Projeyi dışarıdan erişime açmak için:
+
+1. Basit Yöntem (Vite Üzerinden):
+   Komut: ngrok http 5173 --host-header="localhost:5173"
+   
+2. Detaylı rehber için şu dosyayı okuyun: NGROK_GUIDE.md
+
+------------------------------------------------------------------------
+                        KLASÖR YAPISI ÖZETİ
+------------------------------------------------------------------------
+- src/              -> Backend kaynak kodları
+- frontend/         -> React arayüz kodları
+- sql/              -> Veritabanı kurulum dosyaları
+- scripts/          -> Kurulum ve bakım scriptleri
+- logs/             -> Hata ve işlem kayıtları (app.log)
+- raporlar/         -> Şablonlar ve üretilen PDF'lerin saklandığı yer
+
+İyi çalışmalar!
