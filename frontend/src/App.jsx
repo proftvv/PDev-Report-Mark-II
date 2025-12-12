@@ -271,30 +271,23 @@ function App() {
 
   async function loadTemplatePreview(templateId) {
     try {
-      addLog(`Loading template preview for ID: ${templateId}`);
       const template = await apiFetch(`/templates/${templateId}`, { method: 'GET' });
-      addLog(`Template fetched: ${template.name}`);
 
       let fieldMap = template.field_map_json;
       if (typeof fieldMap === 'string') {
         try { fieldMap = JSON.parse(fieldMap); } catch (e) {
-          addLog(`Error parsing fieldMap: ${e.message}`);
           fieldMap = [];
         }
       }
       if (!Array.isArray(fieldMap)) {
-        addLog('fieldMap is not an array, resetting to []');
         fieldMap = [];
       }
-
-      addLog(`Field map has ${fieldMap.length} items`);
 
       // Update template object with parsed map to prevent render errors
       template.field_map_json = fieldMap;
       setSelectedTemplate(template);
 
       const fileUrl = `${API_BASE}/files/templates/${template.file_path}`;
-      addLog(`PDF URL: ${fileUrl}`);
       setReportPreview(fileUrl);
 
       setReportForm(prev => ({
@@ -305,7 +298,6 @@ function App() {
         }, {})
       }));
     } catch (err) {
-      addLog(`Error loading template: ${err.message}`);
       setStatus(err.message);
     }
   }
