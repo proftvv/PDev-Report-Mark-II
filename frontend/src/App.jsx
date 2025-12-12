@@ -97,8 +97,6 @@ function App() {
       reader.readAsDataURL(templateFile);
     }
   }, [templateFile]);
-    }
-  }, [templateFile]);
 
   async function apiFetch(path, options = {}) {
     const headers = options.headers ? { ...options.headers } : {};
