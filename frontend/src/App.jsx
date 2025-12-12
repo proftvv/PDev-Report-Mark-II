@@ -78,6 +78,8 @@ function App() {
   const [editingTemplate, setEditingTemplate] = useState(null); // { id, name, description, file_path, field_map_json }
   const [editingFields, setEditingFields] = useState([]); // Düzenleme için seçilen alanlar
   const [editingPreview, setEditingPreview] = useState(null); // Edit mod PDF preview
+
+  useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
   }, [darkMode]);
@@ -93,6 +95,8 @@ function App() {
         setTemplatePreview(e.target.result);
       };
       reader.readAsDataURL(templateFile);
+    }
+  }, [templateFile]);
     }
   }, [templateFile]);
 
