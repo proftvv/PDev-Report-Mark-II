@@ -529,7 +529,7 @@ function App() {
               {darkMode ? '☀️' : '🌙'}
             </button>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: '1.2' }}>
-              <span className="muted">v1.2.1</span>
+              <span className="muted">v1.3.0</span>
               <span className="muted" style={{ fontSize: '10px', color: '#2563eb' }}>Developed by Proftvv</span>
             </div>
             {user ? (
@@ -765,8 +765,6 @@ function App() {
                       <h3>PDF önizleme - Alanları doldurun</h3>
                       <PDFCanvas
                         file={reportPreview}
-                        onLoadSuccess={(pdf) => addLog(`PDF Loaded successfully: ${pdf.numPages} pages`)}
-                        onLoadError={(err) => addLog(`PDF Load Error: ${err.message}`)}
                       >
                         <div className="pdf-dots">
                           {renderFieldDots(reportFieldMap, reportForm.fieldData)}

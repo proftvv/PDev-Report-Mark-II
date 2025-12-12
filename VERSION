@@ -1,7 +1,8 @@
-PROJECT VERSION: 1.2.1
+PROJECT VERSION: 1.3.0
 
 History:
-- v1.2.1: Phase 3 - Reports Dashboard Upgrade (Search & Date Filters)
+- v1.3.0: Phase 3 - Reports Dashboard Upgrade (Tab Navigation, Archive, Search & Filters)
+- v1.2.1: Phase 3 - Search and date filters
 - v1.2.0: Phase 2 - Enhanced Authentication (Login with username OR custom_id)
 - v1.1.18: Fixed customer_id database type mismatch. Added customer_id input field. Enhanced pdfService error handling. Added ErrorBoundary and Debug Console.
 - v1.1.17: Added Rich Text controls to Report Generation. Version synchronization.
