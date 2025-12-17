@@ -1,6 +1,0 @@
-v1.1.15 (12 Aralik 2025)
-  - Adjusted versioning scheme: v1.1.x (Stable.Major.Fix)
-  - Forced PDF native scrollbar hidden to ensure correct overlay scrolling
-  - Updated documentation
-  - Fixed PDF Worker version mismatch (Downgraded to 5.4.296)
-  - Added System Error Codes (L-xxxxx, D-xxxxx, etc.)

@@ -1,15 +1,4 @@
--- Migration: Add custom_id field to users table
--- Version: v1.2.0
--- Date: 2025-12-12
--- Description: Adds custom_id column to support login with username OR user ID
-
--- Add custom_id column
-ALTER TABLE users 
-ADD COLUMN custom_id VARCHAR(50) UNIQUE NULL 
-AFTER username;
-
--- Add index for performance (optional but recommended)
-CREATE INDEX idx_users_custom_id ON users(custom_id);
-
--- Verify the change
--- DESCRIBE users;
+CREATE DATABASE markii_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'markii_db'@'localhost' IDENTIFIED BY '2503';
+GRANT ALL PRIVILEGES ON markii_db.* TO 'markii_db'@'localhost';
+FLUSH PRIVILEGES;

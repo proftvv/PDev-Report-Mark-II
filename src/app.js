@@ -54,16 +54,16 @@ app.use('/files', express.static(config.storageRoot));
 if (require.main === module) {
   const port = config.port;
   const server = app.listen(port, config.host, () => {
-    console.log(`Server running on http://${config.host}:${port}`);
+    logger.info('Server started successfully', { host: config.host, port: port });
   });
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-      console.error(`\nHATA: Port ${port} zaten kullaniliyor!`);
-      console.error(`Lutfen eski servisi kapatin veya .env dosyasinda APP_PORT degistirin.\n`);
+      logger.error('Port already in use', { port: port });
+      logger.info('Please stop the old service or change APP_PORT in .env file');
       process.exit(1);
     } else {
-      console.error('Server hatasi:', err);
+      logger.error('Server error', { error: err.message, stack: err.stack });
       process.exit(1);
     }
   });

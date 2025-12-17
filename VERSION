@@ -1,14 +1,1375 @@
-PROJECT VERSION: 1.4.2
+================================================================================
+PROJECT VERSION: 2.0.0-alpha - Mars
+Release Date: 2025-12-17
+================================================================================
+
+CODENAME: Mars (Red Planet) - Symbolizing a major transformation, cleanup, and 
+new foundation for the project. This release focuses on code quality, 
+consolidation, and architectural improvements.
+
+CURRENT PHASE: Phase 3 Complete - Backend Optimization
+STATUS: Alpha - In Development
+
+WHAT'S NEW IN v2.0.0:
+- Phase 1: ✅ Complete (2025-12-17) - Version history consolidated, Changelog folder removed
+- Phase 2: ✅ Complete (2025-12-17) - Code cleanup (debug files removed, project structure organized)
+- Phase 3: ✅ Complete (2025-12-17) - Backend optimization (console.log → logger migration, 27+ statements replaced)
+- Phase 4: ⏳ Pending - Frontend refactoring (App.jsx componentization)
+- Phase 5: ⏳ Pending - Documentation rewrite
+- Phase 6: ⏳ Pending - Final release and tagging
+
+NEW FEATURES:
+- Unified startup scripts (start.bat / start.ps1) for easy deployment
+- Centralized logging with structured metadata
+- Cleaner project structure (scripts/ folder, deprecated files removed)
+- Production-ready error handling and logging
+
+================================================================================
+COMPLETE VERSION HISTORY
+================================================================================
+
+----------------------------------------
+v1.4.2 - Template Editing Feature
+Date: 2025-12-12
+----------------------------------------
+Complete implementation of template editing functionality for admin users.
+
+KEY FEATURES:
+✓ Full template editing interface in admin "Şablonlar" tab
+✓ PDF field visualization with existing fields highlighted
+✓ Interactive field selection (drag to add/remove fields)
+✓ Template metadata editing (name, description)
+✓ Real-time field list with coordinates display
+✓ Save/Cancel workflow with loading states
+
+TECHNICAL IMPLEMENTATION:
+- Frontend: Added editingTemplate, editingFields, editingPreview state
+- New Functions: handleEditTemplate(id), handleSaveEditedTemplate()
+- Enhanced handleMouseUp() for edit mode vs creation mode routing
+- API Integration: PUT /templates/:id (existing endpoint utilized)
+- Field Management: Add, delete, visualize fields on PDF preview
+
+WORKFLOW:
+1. Admin clicks "🔧 Düzenle" button on template
+2. System loads template data and PDF preview
+3. Edit mode displays with current fields
+4. Admin modifies name, description, or field mappings
+5. Save sends PUT request, updates database
+6. Template list refreshes
+
+FILES MODIFIED:
+- frontend/src/App.jsx (~200 lines modified)
+- VERSION (bumped to v1.4.2)
+
+UI/UX IMPROVEMENTS:
+- "Geri" button on edit header
+- Field position/size display (x, y, width, height)
+- "Alan yok" message when no fields
+- Consistent error/success messaging
+- Loading indicator during save operations
+
+----------------------------------------
+v1.4.1 - Admin Features Separation
+Date: 2025-12-12
+----------------------------------------
+Frontend revamp separating admin features from main dashboard. Templates 
+management moved to dedicated admin-only tab.
+
+KEY FEATURES:
+✓ Removed "Şablonlar" section from homepage (accessible to all users)
+✓ Created dedicated "Şablonlar" tab (admin-only: proftvv)
+✓ Template action buttons: Rename, Edit, Delete
+✓ Template upload form moved to admin tab
+✓ Tab navigation: Ana Sayfa | Arşiv | Şablonlar (admin only)
+
+NEW API ENDPOINTS:
+- PUT /templates/:id/rename - Rename template
+- PUT /templates/:id - Update template (name, description, fields)
+- DELETE /templates/:id - Delete template with file cleanup
+
+FRONTEND CHANGES:
+- 3 new handler functions:
+  * handleRenameTemplate(id, newName) - Rename with confirmation
+  * handleEditTemplate(id) - Edit template (UI placeholder)
+  * handleDeleteTemplate(id) - Delete with confirmation
+- Integrated with existing apiFetch and error handling
+- Admin authentication check on all operations
+
+BACKEND CHANGES:
+- All new endpoints require admin authentication (adminOnly middleware)
+- Admin action logging for all operations
+- File cleanup on template deletion (removes PDF from storage)
+
+FILES MODIFIED:
+- frontend/src/App.jsx (~350 lines modified/added)
+- src/routes/templates.js (~100 lines added)
+- VERSION (bumped to v1.4.1)
+
+SECURITY:
+- Admin-only access enforced on backend
+- Operations logged in admin_actions table
+- Non-admin users cannot see or access template management
+
+----------------------------------------
+v1.4.0 - Phase 4: RBAC & UX Enhancements
+Date: 2025-12-12
+----------------------------------------
+Major security and code quality update with centralized error management, role 
+validation, and RBAC implementation across all routes.
+
+KEY FEATURES:
+✓ Centralized error code system (ERROR_CODES.js)
+✓ Role validation helpers (roleValidation.js)
+✓ RBAC applied to all routes (templates, reports, auth)
+✓ Standardized HTTP status codes and error responses
+✓ Admin action logging for security audits
+
+NEW FILES:
+- src/utils/errorCodes.js - Centralized error code definitions
+  * Categories: AUTH, AUTHZ, VALIDATION, RESOURCE, DATABASE, FILE, PDF, SERVER
+  * Functions: createError(), sendError()
+  * Error format: { "error": "Message", "code": "AUTH_001" }
+
+- src/utils/roleValidation.js - Role validation helpers
+  * Functions: isAdmin(), isAuthenticated(), checkAdminPermission()
+  * IP-based checks: isLocalIp()
+  * Admin action logging: logAdminAction()
+
+ERROR CODES IMPLEMENTED:
+- AUTH (401): NO_SESSION, INVALID_CREDENTIALS, SESSION_EXPIRED
+- AUTHZ (403): FORBIDDEN, ADMIN_ONLY, IP_RESTRICTED, INSUFFICIENT_ROLE
+- VALIDATION (400): MISSING_FIELD, INVALID_FORMAT, MISSING_FILE, INVALID_JSON
+- RESOURCE (404): NOT_FOUND, TEMPLATE_NOT_FOUND, REPORT_NOT_FOUND
+- DATABASE (500): CONNECTION_ERROR, QUERY_ERROR, TRANSACTION_ERROR
+- FILE (400/500): UPLOAD_ERROR, READ_ERROR, WRITE_ERROR, INVALID_TYPE
+- PDF (500): PROCESSING_ERROR, RENDERING_ERROR, CORRUPTION_ERROR
+- SERVER (500): INTERNAL_ERROR, PORT_IN_USE
+
+MIDDLEWARE UPDATES:
+- authRequired.js - Error codes integration
+- adminOnly.js - Error codes, isLocalIp() check, logAdminAction() logging
+
+ROUTES UPDATES:
+Templates.js:
+- POST /templates: Validation error codes, PDF type validation, admin logging
+- GET /templates: Database error codes
+- GET /templates/:id: TEMPLATE_NOT_FOUND error code
+
+Reports.js:
+- POST /reports: Validation error codes, TEMPLATE_NOT_FOUND, PDF.PROCESSING_ERROR
+- GET /reports: Database error codes
+- GET /reports/:id: REPORT_NOT_FOUND error code
+- DELETE /reports/:id: adminOnly middleware, REPORT_NOT_FOUND, admin logging
+
+FILES MODIFIED:
+- src/middleware/authRequired.js
+- src/middleware/adminOnly.js
+- src/routes/templates.js
+- src/routes/reports.js
+- VERSION (bumped to v1.4.0)
+
+RESPONSE FORMAT CHANGE:
+Old: { "error": "Message" }
+New: { "error": "Message", "code": "AUTH_001" }
+
+ADVANTAGES:
+✅ Consistent error handling across entire backend
+✅ Standardized HTTP status codes
+✅ Error codes enable better frontend error handling
+✅ Centralized role validation reduces code duplication
+✅ Admin operations tracked for security audits
+✅ IP-based restrictions for sensitive operations
+✅ RBAC fully implemented
+
+NEXT STEPS (Pending):
+- Frontend: Display error codes to users
+- Frontend: Hide admin features for non-admin users
+- Frontend: Add loading states (spinner, disabled buttons)
+- Documentation: Create ERROR_CODES.md reference
+
+----------------------------------------
+v1.3.0 - Phase 3: Reports Dashboard Upgrade
+Date: 2025-12-12
+----------------------------------------
+Major UI overhaul with tab-based navigation, dedicated archive page, and 
+powerful search/filter capabilities. Complete separation of report creation 
+and report management workflows.
+
+KEY FEATURES:
+✓ Tab navigation system (Ana Sayfa | Arşiv | Şablonlar)
+✓ Dedicated "Arşiv" tab for reports management
+✓ Real-time search (document number, customer ID, template ID)
+✓ Date range filtering (start/end date)
+✓ Debug console removed (production-ready UI)
+✓ Sticky navigation (stays visible while scrolling)
+
+TAB NAVIGATION:
+- Ana Sayfa: Report creation interface
+- Arşiv: Complete reports list with search/filters
+- Şablonlar: Template management (admin only)
+
+SEARCH & FILTER SYSTEM:
+- Multi-field search: doc_number, customer_id, template_id
+- Case-insensitive matching
+- Instant results as you type
+- Search input placeholder: "Rapor numarası, müşteri ID veya şablon ara..."
+
+Date Range Filtering:
+- Start date: Filter reports from specific date onwards
+- End date: Filter reports up to specific date
+- Combined range: Both dates for precise filtering
+- "Temizle" button to clear all filters
+- Report count display (e.g., "5 rapor")
+
+FRONTEND IMPLEMENTATION:
+New State Variables:
+```javascript
+const [activeTab, setActiveTab] = useState('dashboard');
+const [searchQuery, setSearchQuery] = useState('');
+const [dateRange, setDateRange] = useState({ start: '', end: '' });
+const [filteredReports, setFilteredReports] = useState([]);
+```
+
+Filtering Logic:
+- useEffect hook monitors reports, searchQuery, dateRange
+- Client-side filtering for fast, responsive UX
+- Sequential filters: search → start date → end date
+- No server round-trips required
+
+UI/UX IMPROVEMENTS:
+- Report count badge
+- "No reports found" message when empty
+- "Filtreye uygun rapor bulunamadı" for filtered empty results
+- Responsive filter layout (mobile-friendly)
+- Active tab highlighting
+- Clean, professional appearance
+
+CODE CLEANUP:
+- Removed debug console from bottom of screen
+- Deleted all addLog() function calls
+- Removed debug-related state variables
+- Production-ready appearance
+
+FILES MODIFIED:
+- frontend/src/App.jsx (~400 lines modified)
+- VERSION (bumped to v1.3.0)
+
+PERFORMANCE:
+- Client-side filtering: Fast for < 1000 reports
+- Instant visual feedback
+- No database queries for filtering
+- Efficient React state management
+
+FUTURE OPTIMIZATION (if needed):
+- Server-side filtering for large datasets
+- Pagination support
+- Lazy loading
+- Virtual scrolling
+
+ARCHIVE PAGE FEATURES:
+- Document number prominently displayed
+- Template ID and Customer ID shown
+- Direct PDF download links
+- Delete functionality (admin only)
+- Better organization and separation from report creation
+
+----------------------------------------
+v1.2.1 - Search & Filter Feature
+Date: 2025-12-12
+----------------------------------------
+Added real-time search and date range filtering to reports dashboard.
+
+KEY FEATURES:
+✓ Real-time search by document number, customer ID, or template ID
+✓ Date range filtering (start date, end date)
+✓ Clear filters button
+✓ Report count display
+✓ "No reports found" message for empty results
+
+SEARCH FUNCTIONALITY:
+- Case-insensitive matching
+- Instant filtering as you type
+- Search placeholder: "Rapor numarası, müşteri ID veya şablon ara..."
+- Multi-field search support
+
+DATE RANGE FILTERING:
+- Start date: Filter from this date onwards
+- End date: Filter up to this date
+- Combined range: Both dates for specific period
+- "Temizle" button to reset filters
+
+UI COMPONENTS:
+- Search input (flex: 1, min-width: 200px)
+- Two date inputs (min-width: 150px each)
+- Clear filters button
+- Report count badge
+
+FRONTEND IMPLEMENTATION:
+New State:
+```javascript
+const [searchQuery, setSearchQuery] = useState('');
+const [dateRange, setDateRange] = useState({ start: '', end: '' });
+const [filteredReports, setFilteredReports] = useState([]);
+```
+
+Filtering Logic:
+- useEffect monitors reports, searchQuery, dateRange
+- Client-side filtering (fast for < 1000 reports)
+- Sequential application of filters
+
+FILES MODIFIED:
+- frontend/src/App.jsx (added search/filter UI and logic)
+- VERSION (bumped to v1.2.1)
+
+PERFORMANCE:
+- Client-side filtering for responsiveness
+- No server round-trips
+- Instant visual feedback
+
+FUTURE ENHANCEMENTS:
+- Server-side filtering for large datasets
+- Pagination support
+- Lazy loading
+
+----------------------------------------
+v1.2.0 - Phase 2: Enhanced Authentication
+Date: 2025-12-12
+----------------------------------------
+Major authentication system upgrade enabling login with either username OR 
+custom_id. Adds flexibility for users with memorable custom IDs.
+
+KEY FEATURES:
+✓ Dual authentication: username OR custom_id
+✓ New database field: users.custom_id (VARCHAR(50) UNIQUE)
+✓ Database migration script included
+✓ Backward compatible with existing username-only logins
+✓ New error codes for authentication failures
+
+DATABASE CHANGES:
+```sql
+ALTER TABLE users ADD COLUMN custom_id VARCHAR(50) UNIQUE NULL;
+```
+
+Migration Script:
+- migrations/001_add_custom_id_to_users.sql
+- Adds custom_id column to users table
+- Maintains uniqueness constraint
+- NULL allowed (optional field)
+
+AUTHENTICATION LOGIC:
+Login Process:
+1. User enters identifier (username or custom_id)
+2. Backend queries: WHERE username = ? OR custom_id = ?
+3. If found, verify password with bcrypt
+4. Create session on success
+
+Error Codes:
+- [L-002]: Login identifier required
+- [L-003]: No user found with provided identifier
+- [L-004]: Invalid password
+
+FRONTEND CHANGES:
+- Login form placeholder updated: "Kullanıcı adı veya özel ID"
+- Error messages display new error codes
+- Validation updated for dual authentication
+
+BACKEND CHANGES:
+- src/routes/auth.js modified
+- Query logic: SELECT * FROM users WHERE username = ? OR custom_id = ?
+- Password verification unchanged (bcrypt)
+- Session creation unchanged
+
+FILES MODIFIED:
+- frontend/src/App.jsx (login form)
+- src/routes/auth.js (authentication logic)
+- migrations/001_add_custom_id_to_users.sql (new file)
+- VERSION (bumped to v1.2.0)
+
+SECURITY:
+- custom_id has UNIQUE constraint (prevents duplicates)
+- Password hashing unchanged (bcrypt with salt rounds)
+- Session management unchanged
+- No security regressions
+
+BACKWARD COMPATIBILITY:
+✅ Existing users can continue using username only
+✅ custom_id is optional (NULL allowed)
+✅ No breaking changes to existing authentication flow
+
+USAGE EXAMPLES:
+Login with username:
+- Input: "proftvv"
+- Backend: Finds user by username
+
+Login with custom_id:
+- Input: "P-12345"
+- Backend: Finds user by custom_id
+
+FUTURE ENHANCEMENTS:
+- Custom ID format validation (e.g., P-XXXXX pattern)
+- Custom ID auto-generation
+- Custom ID display in user profile
+
+----------------------------------------
+v1.1.18 - Critical Database Fix & UX Enhancements
+Date: 2025-12-11
+----------------------------------------
+Critical fix for customer_id database type mismatch causing data integrity 
+issues. Added ErrorBoundary and Debug Console for better error handling.
+
+CRITICAL FIX:
+- Database Type Mismatch: customer_id field
+  * Problem: Database expected INT, application sent STRING
+  * Solution: Added customer_id input field to report form
+  * Impact: Reports now save correctly with proper customer IDs
+
+UI ENHANCEMENTS:
+✓ Added customer_id input field to report creation form
+✓ React ErrorBoundary component (catches render errors)
+✓ On-screen Debug Console (real-time terminal log)
+✓ Enhanced pdfService robustness (defensive field validation)
+
+ERRORBOUNDARY IMPLEMENTATION:
+- Catches React component errors during rendering
+- Displays fallback UI instead of white screen
+- Logs error details to console
+- User-friendly error message
+- "Reload Page" button for recovery
+
+DEBUG CONSOLE:
+- Real-time log display on screen
+- Shows all console.log, console.error messages
+- Positioned at bottom of screen
+- Scrollable log viewer
+- Toggle show/hide functionality
+- Development/debugging aid
+
+PDF SERVICE IMPROVEMENTS:
+- Defensive field validation before PDF operations
+- Null/undefined checks for field properties
+- Graceful handling of malformed field data
+- Better error messages for debugging
+- Reduced PDF processing failures
+
+DATABASE FIX DETAILS:
+Before:
+```javascript
+// customer_id not captured in form
+// Database INSERT failed due to missing required field
+```
+
+After:
+```javascript
+// customer_id input field added
+<input type="text" placeholder="Müşteri ID" value={customerId} />
+// Database INSERT succeeds with proper customer_id
+```
+
+FILES MODIFIED:
+- frontend/src/App.jsx (customer_id input, ErrorBoundary, Debug Console)
+- src/services/pdfService.js (defensive field validation)
+- VERSION (bumped to v1.1.18)
+
+ERROR HANDLING:
+- ErrorBoundary catches component crashes
+- Debug Console shows real-time logs
+- pdfService validates fields before processing
+- Better error messages for troubleshooting
+
+USER EXPERIENCE:
+- Customer ID now properly captured
+- Reports save successfully
+- Errors displayed instead of crashes
+- Real-time debugging information available
+
+BACKWARD COMPATIBILITY:
+✅ Existing reports unaffected
+✅ Database migration not required (customer_id column already exists)
+✅ No breaking changes
+
+----------------------------------------
+v1.1.15 - PDF Viewer Refactor & Error Code System
+Date: 2025-12-11
+----------------------------------------
+PDF viewer improvements with react-pdf library refactor, scrollbar fixes, and 
+introduction of standardized error code system.
+
+KEY CHANGES:
+✓ PDF scrollbar fix (proper container overflow handling)
+✓ PDF Worker version downgrade (compatibility fix)
+✓ Standardized error code system introduced
+✓ System-wide error codes for better debugging
+
+PDF VIEWER FIXES:
+- Scrollbar Issue: Fixed PDF preview container overflow
+- Container styles updated for proper scroll behavior
+- react-pdf rendering improvements
+- Better viewport handling
+
+PDF WORKER:
+- Downgraded pdf.worker version for stability
+- Compatibility fix for certain PDF files
+- Reduced processing errors
+- Better cross-browser support
+
+ERROR CODE SYSTEM:
+New standardized error codes introduced:
+- [L-001]: Login-related errors
+- [S-001]: Server errors
+- [DB-001]: Database errors
+- [PDF-001]: PDF processing errors
+- [F-001]: File operation errors
+
+Error Code Benefits:
+- Easier debugging and troubleshooting
+- Consistent error reporting
+- Better logging and monitoring
+- User-friendly error messages with codes
+- Searchable error documentation
+
+FILES MODIFIED:
+- frontend/src/App.jsx (PDF viewer styles)
+- Frontend PDF worker configuration
+- Error handling across multiple routes
+- VERSION (bumped to v1.1.15)
+
+TECHNICAL DETAILS:
+PDF Container:
+```css
+.pdf-preview-container {
+  overflow-y: auto;
+  max-height: 500px;
+  border: 1px solid #ddd;
+}
+```
+
+Worker Configuration:
+```javascript
+import { pdfjs } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+```
+
+ERROR HANDLING:
+- All errors now include error codes
+- Frontend displays error codes to users
+- Backend logs error codes for analysis
+- Error codes documented in codebase
+
+----------------------------------------
+v1.1.12 - Vite Proxy & Error Codes
+Date: 2025-12-11
+----------------------------------------
+Added Vite development proxy to resolve CORS issues and introduced error code 
+system for standardized error handling.
+
+KEY FEATURES:
+✓ Vite proxy configuration for CORS resolution
+✓ Error code system introduction [L-001]
+✓ PDF template upload/preview fixes
+✓ FormData Content-Type handling
+
+VITE PROXY CONFIGURATION:
+Development Setup:
+```javascript
+// vite.config.js
+export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true
+      }
+    }
+  }
+});
+```
+
+Benefits:
+- Resolves CORS issues in development
+- Seamless API calls from frontend to backend
+- No need for CORS headers in development
+- Production-ready configuration
+
+ERROR CODE SYSTEM:
+First Error Code: [L-001]
+- Login-related errors
+- Standardized error messages
+- Better error tracking
+- Foundation for future error codes
+
+FORMDATA FIXES:
+- Proper Content-Type handling for file uploads
+- Multipart form data configuration
+- Template upload improvements
+- PDF preview fixes
+
+FILES MODIFIED:
+- vite.config.js (proxy configuration)
+- frontend/src/App.jsx (error handling)
+- src/routes/templates.js (error codes)
+- VERSION (bumped to v1.1.12)
+
+DEVELOPMENT WORKFLOW:
+Before:
+- CORS errors during development
+- Manual CORS header configuration needed
+- API calls failed from frontend
+
+After:
+- Seamless API communication
+- Proxy handles CORS automatically
+- Clean development experience
+
+----------------------------------------
+v1.1.11 - Drag & Drop Fields & Logger Service
+Date: 2025-12-11
+----------------------------------------
+Introduced drag-and-drop field selection on PDF templates and centralized 
+logger service for better debugging.
+
+KEY FEATURES:
+✓ Drag-and-drop field selection on PDF preview
+✓ Visual field markers (dots/boxes) on PDF
+✓ Removed manual customer ID input requirement
+✓ Centralized logger service (logger.js)
+✓ Better error logging and debugging
+
+DRAG & DROP IMPLEMENTATION:
+Field Selection:
+- User drags rectangle on PDF preview
+- System captures coordinates and dimensions
+- Field name prompt appears
+- Field added to template mapping
+- Visual marker displayed on PDF
+
+Visual Feedback:
+- Crosshair guide lines while hovering
+- Selection box visualization during drag
+- Field dots/boxes on PDF after creation
+- Real-time field list with coordinates
+
+Coordinate System:
+- PDF origin: Bottom-left (595x842 standard)
+- User selection: Pixel-based, converted to PDF coordinates
+- Storage: x (left), y (bottom), w (width), h (height)
+- Minimum size validation: 5x5 pixels
+
+LOGGER SERVICE:
+New File: src/utils/logger.js
+Functions:
+- logger.info(message, data)
+- logger.warn(message, data)
+- logger.error(message, data)
+- logger.debug(message, data)
+
+Benefits:
+- Centralized logging configuration
+- Consistent log format
+- Log level filtering
+- Better debugging capabilities
+- Production vs development logging
+
+UI IMPROVEMENTS:
+- Removed manual customer ID input from report form
+- Cleaner report creation interface
+- Better user experience
+- Reduced user input errors
+
+FILES MODIFIED:
+- frontend/src/App.jsx (drag-and-drop UI)
+- src/utils/logger.js (new file)
+- Multiple routes updated to use logger
+- VERSION (bumped to v1.1.11)
+
+TECHNICAL DETAILS:
+Mouse Event Handling:
+```javascript
+handleMouseDown(e) - Start drag
+handleMouseMove(e) - Draw selection box
+handleMouseUp(e) - Capture field, prompt for name
+```
+
+Field Storage:
+```json
+{
+  "key": "fieldName",
+  "page": 0,
+  "x": 100,
+  "y": 200,
+  "w": 80,
+  "h": 20
+}
+```
+
+----------------------------------------
+v1.1.10 - Complete JSON to MySQL Migration
+Date: 2025-12-11
+----------------------------------------
+Completed migration from JSON file storage to MySQL database for all data 
+persistence. Removed all JSON file dependencies.
+
+MIGRATION COMPLETE:
+✓ Users: JSON → MySQL (users table)
+✓ Templates: JSON → MySQL (templates table)
+✓ Customers: JSON → MySQL (customers table)
+✓ Doc Counters: JSON → MySQL (doc_counters table)
+✓ Reports: JSON → MySQL (reports table)
+✓ All JSON files deprecated and removed
+
+DATABASE SCHEMA:
+Tables Created:
+1. users - User authentication and profiles
+2. templates - PDF templates with field mappings
+3. customers - Customer information
+4. doc_counters - Document number generation
+5. reports - Generated reports metadata
+6. report_history - Audit trail for reports
+7. memory_bank - System memory/cache
+
+STORAGE CHANGES:
+Before:
+- users.json (user data)
+- templates.json (template definitions)
+- doc-counters.json (document numbering)
+- reports.json (report metadata)
+
+After:
+- All data in MySQL database
+- JSON files deleted
+- storage.js deprecated
+- Direct database queries
+
+BENEFITS:
+✅ ACID compliance for data integrity
+✅ Better concurrency handling
+✅ Relational data queries
+✅ Scalability for large datasets
+✅ Backup and restore capabilities
+✅ Transaction support
+
+FILES MODIFIED:
+- src/db.js (database connection)
+- src/routes/auth.js (user queries)
+- src/routes/templates.js (template queries)
+- src/routes/reports.js (report queries)
+- Deleted: src/storage.js (JSON file handling)
+- Deleted: *.json files (users, templates, reports, etc.)
+- VERSION (bumped to v1.1.10)
+
+MIGRATION PROCESS:
+1. Created database schema (schema.sql)
+2. Migrated existing JSON data to MySQL
+3. Updated all routes to use database queries
+4. Tested all CRUD operations
+5. Removed JSON file dependencies
+6. Deleted storage.js and JSON files
+
+BACKWARD COMPATIBILITY:
+⚠️ BREAKING CHANGE - Requires database setup
+- Fresh installations must run schema.sql
+- Existing JSON data requires migration script
+- No automatic fallback to JSON storage
+
+----------------------------------------
+v0.0.9 - Testing Infrastructure & Migration Scripts
+Date: 2025-12-11
+----------------------------------------
+Added comprehensive testing infrastructure with Jest and supertest. Introduced 
+database migration script system for schema changes.
+
+KEY FEATURES:
+✓ Jest testing framework setup
+✓ Supertest for API endpoint testing
+✓ Database migration script system
+✓ Unit tests for core functionality
+✓ Integration tests for API routes
+
+TESTING SETUP:
+Dependencies:
+- jest: JavaScript testing framework
+- supertest: HTTP assertion library
+- @testing-library/react: React component testing
+- eslint-plugin-jest: Jest linting rules
+
+Test Structure:
+```
+tests/
+├── unit/
+│   ├── auth.test.js
+│   ├── templates.test.js
+│   └── reports.test.js
+├── integration/
+│   ├── api.test.js
+│   └── db.test.js
+└── setup.js
+```
+
+MIGRATION SCRIPTS:
+New Directory: migrations/
+- Sequential migration files
+- SQL schema changes
+- Version controlled
+- Rollback support
+
+Migration Naming:
+```
+001_add_custom_id_to_users.sql
+002_add_report_history_table.sql
+003_add_memory_bank_table.sql
+```
+
+PACKAGE.JSON UPDATES:
+```json
+{
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "supertest": "^6.3.0"
+  }
+}
+```
+
+TEST EXAMPLES:
+API Testing:
+```javascript
+describe('POST /api/auth/login', () => {
+  it('should login with valid credentials', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ username: 'proftvv', password: 'admin123' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+});
+```
+
+FILES ADDED:
+- tests/ directory structure
+- migrations/ directory
+- jest.config.js
+- tests/setup.js
+- Multiple test files
+
+FILES MODIFIED:
+- package.json (test scripts and dependencies)
+- .gitignore (test coverage reports)
+- VERSION (bumped to v0.0.9)
+
+CONTINUOUS INTEGRATION:
+- Tests run before commits (pre-commit hook)
+- Coverage reports generated
+- Failed tests block deployments
+- Automated testing on pull requests
+
+MIGRATION WORKFLOW:
+1. Create migration file: migrations/XXX_description.sql
+2. Run migration: mysql < migrations/XXX_description.sql
+3. Update schema version in database
+4. Test changes
+5. Commit migration file
+
+----------------------------------------
+v0.0.8 - PDF Field Visualization
+Date: 2025-12-10
+----------------------------------------
+Added visual field markers (dots and tooltips) on PDF preview to help users 
+see where fields are positioned on templates.
+
+KEY FEATURES:
+✓ Field position visualization (red dots)
+✓ Hover tooltips showing field names
+✓ Better user understanding of field placement
+✓ Visual feedback during template creation
+
+VISUALIZATION DETAILS:
+- Red dots mark field positions on PDF
+- Tooltips appear on hover showing field key
+- Positioned using absolute CSS with % coordinates
+- Scales with PDF preview size
+- Visual confirmation of field placement
+
+IMPLEMENTATION:
+```jsx
+{selectedFields.map((field, index) => (
+  <div
+    key={index}
+    className="field-marker"
+    style={{
+      left: `${(field.x / 595) * 100}%`,
+      bottom: `${(field.y / 842) * 100}%`,
+    }}
+    title={field.key}
+  >
+    •
+  </div>
+))}
+```
+
+CSS Styling:
+```css
+.field-marker {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: red;
+  border-radius: 50%;
+  cursor: help;
+}
+```
+
+USER EXPERIENCE:
+- Immediate visual feedback after field selection
+- Easy verification of field positions
+- Hover to see field names
+- Clear indication of template structure
+
+FILES MODIFIED:
+- frontend/src/App.jsx (field visualization)
+- frontend/src/App.css (marker styles)
+- VERSION (bumped to v0.0.8)
+
+BENEFITS:
+✅ Better template creation workflow
+✅ Visual confirmation of field placement
+✅ Easier debugging of field issues
+✅ Improved user experience
+
+----------------------------------------
+v0.0.7 - PDF Template Upload & Preview Fixes
+Date: 2025-12-10
+----------------------------------------
+Fixed PDF template upload and preview functionality with proper FormData 
+Content-Type handling.
+
+KEY FIXES:
+✓ FormData Content-Type properly configured
+✓ PDF template upload working correctly
+✓ PDF preview displays after upload
+✓ Multipart form data handling fixed
+
+PROBLEM:
+- Template uploads failed due to incorrect Content-Type
+- Backend rejected multipart/form-data
+- PDF preview not loading
+- File uploads not processed correctly
+
+SOLUTION:
+FormData Configuration:
+```javascript
+const formData = new FormData();
+formData.append('name', templateName);
+formData.append('description', templateDescription);
+formData.append('file', selectedFile);
+formData.append('field_map_json', JSON.stringify(selectedFields));
+
+// Do NOT manually set Content-Type header
+// Browser sets it automatically with boundary
+fetch('/api/templates', {
+  method: 'POST',
+  body: formData
+  // No Content-Type header!
+});
+```
+
+BACKEND HANDLING:
+- Express multer middleware for multipart uploads
+- Proper file extraction from request
+- File saved to temp_uploads/ directory
+- PDF preview generated correctly
+
+FILES MODIFIED:
+- frontend/src/App.jsx (FormData handling)
+- src/routes/templates.js (upload processing)
+- VERSION (bumped to v0.0.7)
+
+TESTING:
+✅ PDF file upload successful
+✅ Preview displays correctly
+✅ Field mappings saved properly
+✅ File stored in correct directory
+
+NOTES:
+- Content-Type boundary automatically set by browser
+- Manual Content-Type header breaks multipart uploads
+- Let browser handle FormData serialization
+
+----------------------------------------
+v0.0.6 - Centralized VERSION File System (CRITICAL)
+Date: 2025-12-10
+----------------------------------------
+ARCHITECTURAL DECISION: Centralized version tracking system implemented. All 
+inline version comments removed from source files. Single source of truth 
+established in VERSION file.
+
+KEY CHANGES:
+✓ Created VERSION file in project root (single source of truth)
+✓ Removed version comments from 14 source files
+✓ Established version tracking protocol
+✓ Status tracking system (Original, Fixed, Modified, New, Config)
+
+FILES CLEANED (Version comments removed):
+Backend:
+1. src/app.js
+2. src/config.js
+3. src/db.js
+4. src/storage.js
+5. src/middleware/adminOnly.js
+6. src/middleware/authRequired.js
+7. src/routes/auth.js
+8. src/routes/reports.js
+9. src/routes/templates.js
+10. src/services/pdfService.js
+11. src/utils/docNumber.js
+
+Frontend:
+12. frontend/src/App.jsx
+13. frontend/src/App.css
+
+Root:
+14. package.json
+
+VERSION FILE STRUCTURE:
+```
+PROJECT VERSION: 0.0.6
 
 History:
-- v1.4.2: Template Editing Feature (Edit PDF fields, rename fields, save field mappings)
-- v1.4.1: Admin Features Separation (Templates management moved to admin tab only, added template rename/edit/delete features)
-- v1.4.0: Phase 4 - RBAC & UX Enhancements (Error codes, Role validation, Admin features hiding)
-- v1.3.0: Phase 3 - Reports Dashboard Upgrade (Tab Navigation, Archive, Search & Filters)
-- v1.2.0: Phase 2 - Enhanced Authentication (Login with username OR custom_id)
-- v1.1.18: Fixed customer_id database type mismatch. Added customer_id input field. Enhanced pdfService error handling. Added ErrorBoundary and Debug Console.
-- v1.1.17: Added Rich Text controls to Report Generation. Version synchronization.
-- v1.1.15: PDF Viewer Refactor (react-pdf), Error Codes.
-- v1.1.14: Initial scrolling fix attempts.
-- v1.1.12: Layout adjustments.
-- v1.1.10: Drag & Drop overlay implementation.
+- v0.0.6: Centralized VERSION system
+- v0.0.5: run-all.bat fixes
+- v0.0.4: Project structure flattened
+```
+
+STATUS INDICATORS:
+- Original: File unchanged from initial commit
+- Fixed: Bug fix applied
+- Modified: Feature changes applied
+- New: Newly created file
+- Config: Configuration file
+
+RATIONALE:
+- Single source of truth for version information
+- Eliminates version comment conflicts during merges
+- Easier version updates (single file change)
+- Cleaner source code without version clutter
+- Centralized version history tracking
+
+VERSION UPDATE PROTOCOL:
+1. Make code changes
+2. Update VERSION file with new version number
+3. Add entry to History section describing changes
+4. Update status indicators if needed
+5. Commit with version in commit message
+
+BENEFITS:
+✅ No merge conflicts from version comments
+✅ Single file to update for version bumps
+✅ Cleaner source code
+✅ Centralized version history
+✅ Easier version tracking
+✅ Professional version management
+
+FILES MODIFIED:
+- VERSION (new file created)
+- 14 source files (version comments removed)
+- Changelog/v0.0.6.txt (this documentation)
+
+BREAKING CHANGES:
+None - This is internal version management change only
+
+FUTURE COMPATIBILITY:
+- All future versions tracked in VERSION file
+- No inline version comments in source files
+- Changelog/ folder for detailed release notes
+- VERSION file for current version only
+
+----------------------------------------
+v0.0.5 - run-all.bat Fix for Flat Structure
+Date: 2025-12-10
+----------------------------------------
+Fixed run-all.bat to work with flattened project structure (removed nested 
+Mark-II folder).
+
+PROBLEM:
+- run-all.bat referenced old nested folder structure
+- Commands tried to cd into non-existent Mark-II/ directory
+- Backend and frontend failed to start
+- Path errors in batch file
+
+SOLUTION:
+Updated run-all.bat for flat structure:
+```batch
+@echo off
+echo Starting Report Mark II Application...
+
+REM Backend
+start "Backend" cmd /k "cd /d Z:\MARK-II && node src\app.js"
+
+REM Frontend
+start "Frontend" cmd /k "cd /d Z:\MARK-II\frontend && npm run dev"
+
+echo Backend and Frontend started in separate windows.
+pause
+```
+
+CHANGES:
+- Removed nested Mark-II/ references
+- Direct paths: Z:\MARK-II and Z:\MARK-II\frontend
+- Fixed backend start command
+- Fixed frontend start command
+- Both services start correctly
+
+FILES MODIFIED:
+- run-all.bat (path fixes)
+- VERSION (bumped to v0.0.5)
+- Changelog/v0.0.5.txt (this file)
+
+TESTING:
+✅ run-all.bat executes successfully
+✅ Backend starts on port 3000
+✅ Frontend starts on port 5173 (Vite)
+✅ Both services accessible
+✅ No path errors
+
+NOTES:
+- Project structure now: Z:\MARK-II\ (flat)
+- No nested Mark-II/ folder
+- All paths updated to reflect flat structure
+
+----------------------------------------
+v0.0.4 - Project Structure Flattened
+Date: 2025-12-10
+----------------------------------------
+Removed nested Mark-II folder inside MARK-II. Flattened project structure for 
+cleaner organization.
+
+STRUCTURAL CHANGE:
+Before:
+```
+Z:\MARK-II\
+  └── Mark-II\
+      ├── frontend/
+      ├── src/
+      ├── package.json
+      └── ...
+```
+
+After:
+```
+Z:\MARK-II\
+  ├── frontend/
+  ├── src/
+  ├── package.json
+  └── ...
+```
+
+CHANGES:
+✓ Moved all files from Z:\MARK-II\Mark-II\ to Z:\MARK-II\
+✓ Updated all path references in documentation
+✓ Updated README.md paths
+✓ Updated DEPLOYMENT_AAPANEL.md paths
+✓ Simplified project navigation
+
+FILES MOVED:
+All project files moved one level up:
+- frontend/ → Z:\MARK-II\frontend\
+- src/ → Z:\MARK-II\src\
+- package.json → Z:\MARK-II\package.json
+- All other root files moved up
+
+FILES MODIFIED:
+- README.md (path updates)
+- DEPLOYMENT_AAPANEL.md (path updates)
+- run-all.bat (pending fix in v0.0.5)
+- VERSION (bumped to v0.0.4)
+- Changelog/v0.0.4.txt (this file)
+
+BENEFITS:
+✅ Cleaner project structure
+✅ Shorter file paths
+✅ Less confusion with nested folders
+✅ Standard project layout
+✅ Easier navigation
+
+BREAKING CHANGES:
+⚠️ All documentation paths updated
+⚠️ run-all.bat needs update (fixed in v0.0.5)
+⚠️ Manual installations need path updates
+
+MIGRATION STEPS:
+1. Move all files from Z:\MARK-II\Mark-II\ to Z:\MARK-II\
+2. Delete empty Mark-II/ nested folder
+3. Update environment variables if needed
+4. Update any scripts with hardcoded paths
+5. Update documentation
+
+----------------------------------------
+v0.0.3 - Path Migration to Z:\MARK-II & Changelog System
+Date: 2025-12-10
+----------------------------------------
+Updated all project paths from mixed locations to standardized Z:\MARK-II. 
+Created Changelog folder for version tracking.
+
+PATH CHANGES:
+All references updated to Z:\MARK-II:
+- Documentation paths
+- Deployment guide paths
+- Environment variable examples
+- Installation instructions
+
+CHANGELOG SYSTEM CREATED:
+✓ New folder: Changelog/
+✓ Version-specific files: vX.X.X.txt
+✓ Detailed release notes for each version
+✓ Historical record of all changes
+
+STRUCTURE:
+```
+Changelog/
+├── v0.0.2.txt
+├── v0.0.3.txt
+└── (future versions)
+```
+
+FILES MODIFIED:
+- README.md (paths updated to Z:\MARK-II)
+- DEPLOYMENT_AAPANEL.md (paths updated)
+- env.example (paths updated)
+- VERSION (bumped to v0.0.3)
+- Changelog/ folder created
+
+BENEFITS:
+✅ Consistent Z: drive path across all documentation
+✅ Historical record of changes in Changelog/
+✅ Easier version tracking
+✅ Better project organization
+
+NOTES:
+- Z:\MARK-II is now standard path for all installations
+- Changelog/ contains detailed release notes
+- VERSION file tracks current version
+- Each version has dedicated changelog file
+
+----------------------------------------
+v0.0.2 - Initial GitHub Setup & Documentation
+Date: 2025-12-10
+----------------------------------------
+Initial project setup with GitHub repository, comprehensive documentation, and 
+version tracking system.
+
+KEY FEATURES:
+✓ GitHub repository initialized
+✓ README.md created with project overview
+✓ run-all.bat for easy local development
+✓ Version tracking system implemented
+✓ Project documentation established
+
+GITHUB SETUP:
+- Repository created on GitHub
+- Remote added to local project
+- Initial commit pushed
+- Branch: main
+- Repository structure established
+
+DOCUMENTATION CREATED:
+1. README.md
+   - Project overview
+   - Features list
+   - Installation instructions
+   - Usage guide
+   - Technology stack
+   - File structure
+
+2. GITHUB_SETUP.md
+   - Step-by-step GitHub setup
+   - Git commands reference
+   - Repository configuration
+   - Push instructions
+
+3. run-all.bat
+   - Automated startup script
+   - Starts backend and frontend
+   - Opens separate terminal windows
+   - Windows batch file for easy launching
+
+VERSION SYSTEM:
+- Initial version: 0.0.2
+- Version comments in source files
+- Version tracking protocol established
+- Foundation for future versioning
+
+PROJECT STRUCTURE:
+```
+Z:\MARK-II\
+├── frontend/          # React frontend
+├── src/               # Backend source
+│   ├── routes/        # API routes
+│   ├── middleware/    # Express middleware
+│   ├── services/      # Business logic
+│   └── utils/         # Utility functions
+├── sql/               # Database scripts
+├── logs/              # Application logs
+├── temp_uploads/      # File uploads
+├── package.json       # Backend dependencies
+├── README.md          # Project documentation
+└── run-all.bat        # Startup script
+```
+
+FEATURES DOCUMENTED:
+- PDF template management
+- Dynamic PDF field mapping
+- Report generation with data filling
+- User authentication
+- Role-based access control (RBAC)
+- Archive and search functionality
+- MySQL database integration
+
+TECHNOLOGY STACK:
+Backend:
+- Node.js
+- Express.js
+- MySQL
+- pdf-lib
+- bcrypt
+- express-session
+
+Frontend:
+- React 18
+- Vite
+- react-pdf
+- CSS
+
+FILES CREATED:
+- README.md
+- GITHUB_SETUP.md
+- run-all.bat
+- VERSION (version tracking)
+- Changelog/v0.0.2.txt (this file)
+
+INITIAL COMMIT:
+```
+git init
+git add .
+git commit -m "Initial commit: v0.0.2 - GitHub setup, README, run-all.bat"
+git remote add origin https://github.com/proftvv/Mark-II.git
+git push -u origin main
+```
+
+BENEFITS:
+✅ Professional GitHub presence
+✅ Comprehensive documentation
+✅ Easy local development setup
+✅ Version tracking from start
+✅ Clear project structure
+
+NEXT STEPS:
+- Continue development with version tracking
+- Update VERSION file with each release
+- Create detailed changelog entries
+- Maintain documentation accuracy
+
+================================================================================
+END OF VERSION HISTORY
+================================================================================

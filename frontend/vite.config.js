@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    allowedHosts: [".trycloudflare.com"],
     proxy: {
       '/auth': 'http://localhost:3000',
       '/templates': 'http://localhost:3000',

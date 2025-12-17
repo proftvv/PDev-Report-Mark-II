@@ -7,6 +7,7 @@ const { fillPdfTemplate } = require('../services/pdfService');
 const { formatDocNumber } = require('../utils/docNumber');
 const { buildTemplatePath } = require('../storage');
 const { pool } = require('../db');
+const logger = require('../services/logger');
 
 const router = express.Router();
 
@@ -77,7 +78,7 @@ router.post('/', authRequired, async (req, res) => {
         if (customerRows.length > 0) {
           parsedCustomerId = parsed;
         } else {
-          console.warn(`Customer ID ${parsed} not found in customers table, setting to NULL`);
+          logger.warn('Customer ID not found in database, setting to NULL', { customerId: parsed });
           // If customer doesn't exist, we set to NULL instead of failing
           // Alternative: You could create the customer automatically, or return an error
         }
@@ -101,7 +102,7 @@ router.post('/', authRequired, async (req, res) => {
 
     return res.json({ id: result.insertId, doc_number: docNumber, file_path: pdfPath });
   } catch (err) {
-    console.error(err);
+    logger.error('Report generation error', { error: err.message, stack: err.stack });
     return sendError(res, 'PDF.PROCESSING_ERROR');
   }
 });
@@ -111,7 +112,7 @@ router.get('/', authRequired, async (_req, res) => {
     const [rows] = await pool.query('SELECT * FROM reports ORDER BY created_at DESC');
     return res.json(rows);
   } catch (err) {
-    console.error(err);
+    logger.error('Reports fetch error', { error: err.message });
     return sendError(res, 'DATABASE.QUERY_ERROR');
   }
 });
@@ -122,7 +123,7 @@ router.get('/:id', authRequired, async (req, res) => {
     if (rows.length === 0) return sendError(res, 'RESOURCE.REPORT_NOT_FOUND');
     return res.json(rows[0]);
   } catch (err) {
-    console.error(err);
+    logger.error('Report fetch by ID error', { error: err.message, reportId: req.params.id });
     return sendError(res, 'DATABASE.QUERY_ERROR');
   }
 });
@@ -143,7 +144,7 @@ router.delete('/:id', authRequired, adminOnly, async (req, res) => {
 
     return res.json({ success: true });
   } catch (err) {
-    console.error(err);
+    logger.error('Report delete error', { error: err.message, reportId: req.params.id });
     return sendError(res, 'DATABASE.QUERY_ERROR');
   }
 });

@@ -59,7 +59,8 @@ router.post('/', authRequired, adminOnly, upload.single('file'), async (req, res
 
     return res.json({ id: result.insertId, name, file_path: filename });
   } catch (err) {
-    console.error('Template insert error:', err);
+    const logger = require('../services/logger');
+    logger.error('Template insert error', { message: err.message });
     return sendError(res, 'DATABASE.QUERY_ERROR');
   }
 });
@@ -69,7 +70,8 @@ router.get('/', authRequired, async (_req, res) => {
     const [rows] = await pool.query('SELECT * FROM templates ORDER BY created_at DESC');
     return res.json(rows);
   } catch (err) {
-    console.error('Templates list error:', err);
+    const logger = require('../services/logger');
+    logger.error('Templates list error', { message: err.message });
     return sendError(res, 'DATABASE.QUERY_ERROR');
   }
 });
@@ -81,7 +83,7 @@ router.get('/:id', authRequired, async (req, res) => {
     if (!template) return sendError(res, 'RESOURCE.TEMPLATE_NOT_FOUND');
     return res.json(template);
   } catch (err) {
-    console.error('Template get error:', err);
+    logger.error('Template get error', { error: err.message, stack: err.stack });
     return sendError(res, 'DATABASE.QUERY_ERROR');
   }
 });
@@ -112,7 +114,7 @@ router.put('/:id/rename', authRequired, adminOnly, async (req, res) => {
 
     return res.json({ success: true, id: req.params.id, name });
   } catch (err) {
-    console.error('Template rename error:', err);
+    logger.error('Template rename error', { error: err.message, templateId: req.params.id });
     return sendError(res, 'DATABASE.QUERY_ERROR');
   }
 });
@@ -155,7 +157,7 @@ router.put('/:id', authRequired, adminOnly, async (req, res) => {
 
     return res.json({ success: true, id: req.params.id, ...updateFields });
   } catch (err) {
-    console.error('Template update error:', err);
+    logger.error('Template update error', { error: err.message, templateId: req.params.id });
     return sendError(res, 'DATABASE.QUERY_ERROR');
   }
 });
@@ -195,7 +197,7 @@ router.delete('/:id', authRequired, adminOnly, async (req, res) => {
 
     return res.json({ success: true });
   } catch (err) {
-    console.error('Template delete error:', err);
+    logger.error('Template delete error', { error: err.message, templateId: req.params.id });
     return sendError(res, 'DATABASE.QUERY_ERROR');
   }
 });

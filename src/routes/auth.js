@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { pool } = require('../db');
+const logger = require('../services/logger');
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ router.post('/login', async (req, res) => {
 
     if (rows.length > 1) {
       // This shouldn't happen with UNIQUE constraints, but handle it gracefully
-      console.error('Multiple users found for identifier:', loginIdentifier);
+      logger.error('Multiple users found for identifier', { identifier: loginIdentifier });
       return res.status(500).json({ error: '[L-003] Birden fazla kullanıcı bulundu (sistem hatası)' });
     }
 
@@ -35,7 +36,7 @@ router.post('/login', async (req, res) => {
 
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) {
-      console.log('Password mismatch for identifier:', loginIdentifier);
+      logger.warn('Password mismatch', { identifier: loginIdentifier });
       return res.status(401).json({ error: '[L-001] Gecersiz bilgiler' });
     }
 
@@ -47,7 +48,7 @@ router.post('/login', async (req, res) => {
     };
     return res.json({ user: req.session.user });
   } catch (err) {
-    console.error('Login hatasi:', err);
+    logger.error('Login error', { error: err.message, stack: err.stack });
     return res.status(500).json({ error: `[S-001] Sunucu hatasi: ${err.message}` });
   }
 });
@@ -77,7 +78,7 @@ const RBAC_ERRORS = {
 // Enhanced adminOnly middleware
 function adminOnly(req, res, next) {
   if (!req.session?.user) {
-    console.warn('[RBAC] Unauthorized access attempt - No session');
+    logger.warn('Unauthorized access attempt - No session', { endpoint: req.path });
     return res.status(401).json({
       error: RBAC_ERRORS.UNAUTHORIZED,
       code: 'A-001'
@@ -85,14 +86,23 @@ function adminOnly(req, res, next) {
   }
 
   if (req.session.user.role !== 'admin') {
-    console.warn(`[RBAC] Non-admin user ${req.session.user.username} (ID: ${req.session.user.id}) attempted admin action: ${req.method} ${req.path}`);
+    logger.warn('Non-admin user attempted admin action', {
+      username: req.session.user.username,
+      userId: req.session.user.id,
+      method: req.method,
+      path: req.path
+    });
     return res.status(403).json({
       error: RBAC_ERRORS.ADMIN_ONLY,
       code: 'A-002'
     });
   }
 
-  console.log(`[RBAC] Admin user ${req.session.user.username} accessing: ${req.method} ${req.path}`);
+  logger.info('Admin user accessing endpoint', {
+    username: req.session.user.username,
+    method: req.method,
+    path: req.path
+  });
   next();
 }
 
