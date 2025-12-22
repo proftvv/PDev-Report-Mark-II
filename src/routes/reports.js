@@ -6,7 +6,7 @@ const { logAdminAction } = require('../utils/roleValidation');
 const { fillPdfTemplate } = require('../services/pdfService');
 const { formatDocNumber } = require('../utils/docNumber');
 const { buildTemplatePath } = require('../storage');
-const { pool } = require('../db');
+const { pool, isPostgres } = require('../db');
 const logger = require('../services/logger');
 
 const router = express.Router();
@@ -16,8 +16,6 @@ async function reserveDocNumber() {
   const today = new Date().toISOString().split('T')[0];
 
   // PostgreSQL: ON CONFLICT, MySQL: ON DUPLICATE KEY UPDATE
-  const isPostgres = process.env.DATABASE_URL || process.env.VERCEL;
-  
   if (isPostgres) {
     await pool.execute(
       `INSERT INTO doc_counters (date_key, last_seq) VALUES (?, 1)

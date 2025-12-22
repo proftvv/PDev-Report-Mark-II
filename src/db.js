@@ -128,5 +128,6 @@ console.log('[DB] Database module initialized, pool:', !!pool);
 
 module.exports = {
   pool,
-  query
+  query,
+  isPostgres: usePostgres  // Export PostgreSQL flag
 };
