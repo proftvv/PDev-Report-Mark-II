@@ -5,6 +5,26 @@ const logger = require('../services/logger');
 
 const router = express.Router();
 
+// Health check / debug endpoint
+router.get('/health', async (req, res) => {
+  try {
+    const [rows] = await pool.execute('SELECT 1 as test');
+    return res.json({ 
+      status: 'ok', 
+      database: 'connected',
+      env: process.env.NODE_ENV,
+      vercel: !!process.env.VERCEL,
+      databaseUrl: !!process.env.DATABASE_URL
+    });
+  } catch (err) {
+    return res.status(500).json({ 
+      status: 'error', 
+      error: err.message,
+      stack: err.stack 
+    });
+  }
+});
+
 router.post('/login', async (req, res) => {
   try {
     const { identifier, password } = req.body;
