@@ -1,51 +1,32 @@
 {
-  "version": 2,
-  "name": "report-mark-ii-s2",
-  "builds": [
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "npm install",
+  "devCommand": "npm run dev",
+  "rewrites": [
     {
-      "src": "api/index.js",
-      "use": "@vercel/node"
+      "source": "/auth/:path*",
+      "destination": "/api"
     },
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "source": "/templates/:path*",
+      "destination": "/api"
+    },
+    {
+      "source": "/reports/:path*",
+      "destination": "/api"
+    },
+    {
+      "source": "/users/:path*",
+      "destination": "/api"
+    },
+    {
+      "source": "/logs/:path*",
+      "destination": "/api"
+    },
+    {
+      "source": "/files/:path*",
+      "destination": "/api"
     }
-  ],
-  "routes": [
-    {
-      "src": "/auth/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/templates/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/reports/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/users/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/logs/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/files/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/dist/$1"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "regions": ["iad1"]
+  ]
 }
