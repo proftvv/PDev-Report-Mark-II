@@ -4,7 +4,16 @@ const config = require('./config');
 
 function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+    try {
+      fs.mkdirSync(dirPath, { recursive: true });
+    } catch (err) {
+      // On Vercel, /tmp is the only writable location
+      if (err.code === 'EROFS' && !dirPath.startsWith('/tmp')) {
+        console.warn(`Cannot create directory ${dirPath} on read-only filesystem. Using /tmp instead.`);
+      } else if (err.code !== 'EEXIST') {
+        throw err;
+      }
+    }
   }
 }
 

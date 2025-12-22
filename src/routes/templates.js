@@ -9,7 +9,9 @@ const { sendError } = require('../utils/errorCodes');
 const { checkAdminPermission, logAdminAction } = require('../utils/roleValidation');
 const { pool } = require('../db');
 
-const upload = multer({ dest: 'temp_uploads/' });
+// Vercel serverless: use /tmp for uploads
+const uploadDir = process.env.VERCEL ? '/tmp/uploads' : 'temp_uploads/';
+const upload = multer({ dest: uploadDir });
 const router = express.Router();
 
 // Sablon ekleme - Admin only
