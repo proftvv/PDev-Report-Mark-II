@@ -1,4 +1,6 @@
 {
+  "buildCommand": "npm install && cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
   "rewrites": [
     {
       "source": "/auth/:path*",
@@ -24,5 +26,8 @@
       "source": "/files/:path*",
       "destination": "/api/index"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
