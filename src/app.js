@@ -15,14 +15,6 @@ const reportRoutes = require('./routes/reports');
 const usersRoutes = require('./routes/users');
 const logsRoutes = require('./routes/logs');
 
-// Use PostgreSQL for Vercel/Neon, MySQL for local
-if (process.env.VERCEL || process.env.DB_HOST?.includes('neon.tech')) {
-  // Override db module to use PostgreSQL
-  const dbPostgres = require('./db.postgres');
-  require.cache[require.resolve('./db')].exports = dbPostgres;
-  logger.info('Using PostgreSQL (Neon) database');
-}
-
 setupStorage();
 
 const app = express();
