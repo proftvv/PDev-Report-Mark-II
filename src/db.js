@@ -35,8 +35,26 @@ if (usePostgres) {
     connectionTimeoutMillis: 10000,
   });
 
-  // MySQL-compatible execute function wrapper
+  // MySQL-compatible wrapper for both query and execute
   const originalPool = pool;
+  
+  // Wrap query method
+  const originalQuery = originalPool.query.bind(originalPool);
+  pool.query = async function(sql, params = []) {
+    console.log('[DB] PostgreSQL query called:', { sql: sql.substring(0, 50), paramsCount: params?.length || 0 });
+    
+    try {
+      const result = await originalQuery(sql, params);
+      console.log('[DB] Query result:', { rowCount: result.rows?.length || 0 });
+      // Return MySQL-compatible format: [rows, fields]
+      return [result.rows, result.fields];
+    } catch (err) {
+      console.error('[DB] Query error:', err.message);
+      throw err;
+    }
+  };
+  
+  // Wrap execute method
   pool.execute = async function(sql, params = []) {
     console.log('[DB] PostgreSQL execute called:', { sql: sql.substring(0, 50), paramsCount: params.length });
     
@@ -45,12 +63,12 @@ if (usePostgres) {
     const pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
     
     try {
-      const result = await originalPool.query(pgSql, params);
-      console.log('[DB] Query result:', { rowCount: result.rows.length });
+      const result = await originalQuery(pgSql, params);
+      console.log('[DB] Execute result:', { rowCount: result.rows?.length || 0 });
       // Return MySQL-compatible format: [rows, fields]
       return [result.rows, result.fields];
     } catch (err) {
-      console.error('[DB] Query error:', err.message);
+      console.error('[DB] Execute error:', err.message);
       throw err;
     }
   };
